@@ -7,7 +7,6 @@ const PORT = 3000;
 const API_KEY = process.env.COINMARKETCAP_API;
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
-// Helper: get USD → ZAR rate from Frankfurter
 async function getUSDToZARRate() {
   try {
     const res = await axios.get('https://api.frankfurter.app/latest?from=USD&to=ZAR');
@@ -22,7 +21,6 @@ async function getUSDToZARRate() {
 
 app.get('/', async (req, res) => {
   try {
-    // 1️⃣ Fetch top 10 cryptos in USD
     const response = await axios.get(`${BASE_URL}/cryptocurrency/listings/latest`, {
       headers: { 'X-CMC_PRO_API_KEY': API_KEY },
       params: { start: 1, limit: 10, convert: 'USD' }
@@ -32,7 +30,6 @@ app.get('/', async (req, res) => {
     const usdToZar = await getUSDToZARRate();
     if (!usdToZar) return res.send('Error fetching USD→ZAR rate');
 
-    // 2️⃣ Build HTML table
     let html = `
       <h1>Top 10 Cryptos</h1>
 \      <table border="1" cellpadding="5" cellspacing="0">
