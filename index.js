@@ -3,8 +3,10 @@ const app = express();
 const PORT = 3000;
 
 const allRoutes = require('./routes/all');
+const singleRoutes = require('./routes/single');
 
 app.use('/api/all', allRoutes);
+app.use('/api/single', singleRoutes);
 
 
 // Serve static files (CSS, JS)
