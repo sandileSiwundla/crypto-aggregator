@@ -3,6 +3,8 @@ const cryptoNameInput = document.getElementById('crypto-name');
 const table = document.getElementById('crypto-table');
 const cryptoDetails = document.getElementById('crypto-details');
 
+let chart;
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const cryptoName = cryptoNameInput.value;
@@ -20,6 +22,9 @@ form.addEventListener('submit', async (e) => {
       table.deleteRow(1);
     }
     cryptoDetails.innerHTML = '';
+    if (chart) {
+      chart.destroy();
+    }
 
     if (coin) {
       cryptoDetails.innerHTML = `
@@ -28,6 +33,10 @@ form.addEventListener('submit', async (e) => {
         <p>${coin.description}</p>
         <a href="${coin.urls.website[0]}" target="_blank">Website</a>
       `;
+
+      const historicalRes = await fetch(`/api/single/${cryptoName}/historical`);
+      const { quotes } = await historicalRes.json();
+      renderChart(quotes);
 
       const row = document.createElement('tr');
       const priceUSD = coin.quote.USD.price;
@@ -50,3 +59,29 @@ form.addEventListener('submit', async (e) => {
     console.error('Error fetching crypto data:', err);
   }
 });
+
+function renderChart(quotes) {
+  const ctx = document.getElementById('historical-chart').getContext('2d');
+  const labels = quotes.map(q => new Date(q.timestamp).toLocaleDateString());
+  const data = quotes.map(q => q.quote.USD.price);
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Price (USD)',
+        data,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: false
+        }
+      }
+    }
+  });
+}
