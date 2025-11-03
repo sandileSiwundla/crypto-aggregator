@@ -47,7 +47,10 @@ form.addEventListener('submit', async (e) => {
         <td>${coin.name}</td>
         <td>${coin.symbol}</td>
         <td>$${priceUSD.toFixed(2)}</td>
-        <td>${priceZAR === 'N/A' ? 'N/A' : 'R' + priceZAR.toFixed(2)}</td>
+        <td>${priceZAR === 'N/A' ? 'N/A' : 'R' + priceZar.toFixed(2)}</td>
+        <td>$${coin.quote.USD.market_cap.toLocaleString()}</td>
+        <td>$${coin.quote.USD.volume_24h.toLocaleString()}</td>
+        <td>${coin.circulating_supply.toLocaleString()} ${coin.symbol}</td>
       `;
       table.appendChild(row);
     } else {
