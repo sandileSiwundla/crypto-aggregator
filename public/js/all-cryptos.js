@@ -4,7 +4,6 @@ async function populateTable() {
     const { coins, usdToZar } = await res.json();
 
     const table = document.getElementById('crypto-table');
-    document.getElementById('rate-info').innerText = `USD → ZAR Rate: ${usdToZar?.toFixed(2) || 'N/A'}`;
 
     coins.forEach(coin => {
       const row = document.createElement('tr');
