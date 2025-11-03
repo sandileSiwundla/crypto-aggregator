@@ -41,4 +41,20 @@ router.get('/:cryptoName', async (req, res) => {
   }
 });
 
+router.get('/:cryptoName/historical', async (req, res) => {
+  try {
+    const cryptoName = req.params.cryptoName;
+    const response = await axios.get(`${BASE_URL}/cryptocurrency/quotes/historical`, {
+      headers: { 'X-CMC_PRO_API_KEY': API_KEY },
+      params: { slug: cryptoName, count: 30, convert: 'USD' }
+    });
+
+    const quotes = response.data.data.quotes;
+    res.json({ quotes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch historical data' });
+  }
+});
+
 module.exports = router;
