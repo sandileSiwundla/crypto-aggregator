@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Pick a Crypto</h1>
+
+  <form id="crypto-form">
+    <input type="text" id="crypto-name" placeholder="Enter crypto name">
+    <button type="submit">Get Data</button>
+  </form>
+
+  <div id="crypto-details"></div>
+
+  <table border="1" cellpadding="5" cellspacing="0" id="crypto-table">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Symbol</th>
+      <th>Price (USD)</th>
+      <th>Price (ZAR)</th>
+    </tr>
+  </table>
+
+  <script src="/js/single-crypto.js"></script>
+</body>
+</html>
