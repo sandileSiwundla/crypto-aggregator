@@ -2,32 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CryptoResearch Analytics</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Pick a Crypto</h1>
+  <div class="container">
+    <header class="research-header">
+      <div class="header-content">
+        <i class="fas fa-chart-line"></i>
+        <h1>CryptoResearch Analytics</h1>
+        <p>Academic-grade cryptocurrency analysis for research purposes</p>
+      </div>
+    </header>
 
-  <form id="crypto-form">
-    <input type="text" id="crypto-name" placeholder="Enter crypto name">
-    <button type="submit">Get Data</button>
-  </form>
+    <main class="main-content">
+      <section class="search-section card">
+        <div class="section-header">
+          <h2><i class="fas fa-search"></i> Research Query</h2>
+          <p>Enter any cryptocurrency name or symbol</p>
+        </div>
+        <form id="crypto-form" class="search-form">
+          <div class="input-group">
+            <input type="text" id="crypto-name" placeholder="e.g., Bitcoin, BTC, Ethereum, ETH..." autocomplete="off">
+            <button type="submit" class="search-btn">
+              <i class="fas fa-chart-bar"></i>
+              Analyze Data
+            </button>
+          </div>
+        </form>
+      </section>
 
-  <div id="crypto-details"></div>
+      <section id="crypto-details" class="crypto-details card hidden">
+        <!-- Dynamic content will be loaded here -->
+      </section>
 
-  <canvas id="historical-chart"></canvas>
+      <section class="chart-section card">
+        <div class="section-header">
+          <h2><i class="fas fa-chart-line"></i> Price History</h2>
+          <p>Historical price performance analysis</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="historical-chart"></canvas>
+        </div>
+      </section>
 
-  <table border="1" cellpadding="5" cellspacing="0" id="crypto-table">
-    <tr>
-      <th>Rank</th>
-      <th>Name</th>
-      <th>Symbol</th>
-      <th>Price (USD)</th>
-      <th>Price (ZAR)</th>
-      <th>Market Cap (USD)</th>
-      <th>Volume (24h)</th>
-      <th>Circulating Supply</th>
-    </tr>
-  </table>
+      <section class="data-section card">
+        <div class="section-header">
+          <h2><i class="fas fa-table"></i> Research Data</h2>
+          <p>Comprehensive cryptocurrency metrics</p>
+        </div>
+        <div class="table-container">
+          <table id="crypto-table">
+            <thead>
+              <tr>
+                <th><i class="fas fa-hashtag"></i> Rank</th>
+                <th><i class="fas fa-coins"></i> Name</th>
+                <th><i class="fas fa-code"></i> Symbol</th>
+                <th><i class="fas fa-dollar-sign"></i> Price (USD)</th>
+                <th><i class="fas fa-money-bill-wave"></i> Price (ZAR)</th>
+                <th><i class="fas fa-chart-pie"></i> Market Cap</th>
+                <th><i class="fas fa-exchange-alt"></i> Volume (24h)</th>
+                <th><i class="fas fa-boxes"></i> Circulating Supply</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="research-footer">
+      <p>Academic Research Tool • Data provided by CoinMarketCap API • For research purposes only</p>
+    </footer>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/js/single-crypto.js"></script>
