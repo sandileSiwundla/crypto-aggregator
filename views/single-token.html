@@ -19,26 +19,17 @@
     </header>
 
     <main class="main-content">
-      <section class="search-section card">
-        <div class="section-header">
-          <h2><i class="fas fa-search"></i> Research Query</h2>
-          <p>Enter any cryptocurrency name or symbol</p>
-        </div>
-        <form id="crypto-form" class="search-form">
-          <div class="input-group">
-            <input type="text" id="crypto-name" placeholder="e.g., Bitcoin, BTC, Ethereum, ETH..." autocomplete="off">
-            <button type="submit" class="search-btn">
-              <i class="fas fa-chart-bar"></i>
-              Analyze Data
-            </button>
-          </div>
-        </form>
+      <!-- Search Component -->
+      <section id="search-section" class="search-section card">
+        <!-- TokenSearch.js will render here -->
       </section>
 
-      <section id="crypto-details" class="crypto-details card hidden">
-        <!-- Dynamic content will be loaded here -->
+      <!-- Details Component -->
+      <section id="details-section" class="crypto-details card hidden">
+        <!-- TokenDetails.js will render here -->
       </section>
 
+      <!-- Chart Component -->
       <section class="chart-section card">
         <div class="section-header">
           <h2><i class="fas fa-chart-line"></i> Price History</h2>
@@ -49,30 +40,9 @@
         </div>
       </section>
 
-      <section class="data-section card">
-        <div class="section-header">
-          <h2><i class="fas fa-table"></i> Research Data</h2>
-          <p>Comprehensive cryptocurrency metrics</p>
-        </div>
-        <div class="table-container">
-          <table id="crypto-table">
-            <thead>
-              <tr>
-                <th><i class="fas fa-hashtag"></i> Rank</th>
-                <th><i class="fas fa-coins"></i> Name</th>
-                <th><i class="fas fa-code"></i> Symbol</th>
-                <th><i class="fas fa-dollar-sign"></i> Price (USD)</th>
-                <th><i class="fas fa-money-bill-wave"></i> Price (ZAR)</th>
-                <th><i class="fas fa-chart-pie"></i> Market Cap</th>
-                <th><i class="fas fa-exchange-alt"></i> Volume (24h)</th>
-                <th><i class="fas fa-boxes"></i> Circulating Supply</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data will be populated here -->
-            </tbody>
-          </table>
-        </div>
+      <!-- Table Component -->
+      <section id="table-section" class="data-section card">
+        <!-- TokenTable.js will render here -->
       </section>
     </main>
 
@@ -82,6 +52,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/js/single-crypto.js"></script>
+  
+  <!-- Component Files -->
+  <script src="/js/components/singleToken/TokenSearch.js"></script>
+  <script src="/js/components/singleToken/TokenDetails.js"></script>
+  <script src="/js/components/singleToken/TokenChart.js"></script>
+  <script src="/js/components/singleToken/TokenTable.js"></script>
+  
+  <!-- Main App -->
+  <script src="/js/components/main.js"></script>
 </body>
 </html>
