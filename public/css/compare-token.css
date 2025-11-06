@@ -1,17 +1,17 @@
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #7c3aed;
-  --accent: #06d6a0;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #8b5cf6;
+  --accent: #10b981;
   --accent-red: #ef4444;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-card: #ffffff;
-  --border: #e5e7eb;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
   --radius: 12px;
   --radius-sm: 8px;
 }
@@ -26,7 +26,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
   color: var(--text-primary);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
   min-height: 100vh;
 }
 
@@ -54,12 +54,17 @@ body {
   font-weight: 700;
   margin-bottom: 0.5rem;
   letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .research-header p {
   font-size: 1.1rem;
-  opacity: 0.9;
+  opacity: 0.8;
   font-weight: 300;
+  color: var(--text-secondary);
 }
 
 /* Cards */
@@ -71,17 +76,19 @@ body {
   margin-bottom: 2rem;
   border: 1px solid var(--border);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+  border-color: #475569;
 }
 
 /* Section Headers */
 .section-header {
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--bg-secondary);
+  border-bottom: 2px solid var(--border);
   padding-bottom: 1rem;
 }
 
@@ -135,13 +142,19 @@ body {
   border-radius: var(--radius-sm);
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: var(--bg-primary);
+  background: #0f172a;
+  color: var(--text-primary);
 }
 
 .token-input-group input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #1e293b;
+}
+
+.token-input-group input::placeholder {
+  color: #64748b;
 }
 
 .vs-separator {
@@ -180,7 +193,7 @@ body {
 
 .compare-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
 /* Suggestions Dropdown */
@@ -189,7 +202,7 @@ body {
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
+  background: #1e293b;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
@@ -210,7 +223,7 @@ body {
 }
 
 .suggestion-item:hover {
-  background-color: var(--bg-secondary);
+  background-color: #334155;
 }
 
 .suggestion-item:last-child {
@@ -245,21 +258,45 @@ body {
 }
 
 .token-card {
-  background: var(--bg-secondary);
+  background: linear-gradient(135deg, #1e293b, #334155);
   border-radius: var(--radius);
   padding: 2rem;
-  border: 2px solid transparent;
+  border: 2px solid var(--border);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.token-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .token-card.winner {
   border-color: var(--accent);
-  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  background: linear-gradient(135deg, #1e293b, #064e3b);
+}
+
+.token-card.winner::before {
+  opacity: 1;
+  background: linear-gradient(135deg, var(--accent), #047857);
 }
 
 .token-card.loser {
   border-color: var(--accent-red);
-  background: linear-gradient(135deg, #fef2f2, #fef2f2);
+  background: linear-gradient(135deg, #1e293b, #7f1d1d);
+}
+
+.token-card.loser::before {
+  opacity: 1;
+  background: linear-gradient(135deg, var(--accent-red), #dc2626);
 }
 
 .token-header {
@@ -274,12 +311,14 @@ body {
   height: 60px;
   border-radius: 50%;
   box-shadow: var(--shadow);
+  border: 2px solid var(--border);
 }
 
 .token-info h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
+  color: var(--text-primary);
 }
 
 .token-symbol {
@@ -335,6 +374,9 @@ body {
   position: relative;
   height: 400px;
   width: 100%;
+  background: #0f172a;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
 }
 
 /* Comparison Table */
@@ -342,6 +384,7 @@ body {
   overflow-x: auto;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  background: #0f172a;
 }
 
 table {
@@ -361,6 +404,7 @@ th {
   font-weight: 600;
   font-size: 0.95rem;
   white-space: nowrap;
+  border-bottom: 2px solid var(--border);
 }
 
 th:first-child {
@@ -377,7 +421,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: var(--bg-secondary);
+  background-color: #1e293b;
 }
 
 td {
@@ -413,7 +457,7 @@ td {
 }
 
 .tokenomics-card {
-  background: var(--bg-secondary);
+  background: linear-gradient(135deg, #1e293b, #334155);
   padding: 1.5rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
@@ -484,9 +528,11 @@ td {
 .research-footer {
   text-align: center;
   padding: 2rem 0;
-  color: white;
+  color: var(--text-secondary);
   opacity: 0.8;
   font-size: 0.9rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
 }
 
 /* Responsive Design */
@@ -534,4 +580,129 @@ td {
   .chart-container {
     height: 300px;
   }
+}
+
+/* Vertical Comparison Table */
+.vertical-comparison-section {
+    margin-bottom: 2rem;
+}
+
+#vertical-comparison-table {
+    min-width: 600px;
+    background: #0f172a;
+}
+
+#vertical-comparison-table th {
+    text-align: center;
+    vertical-align: middle;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+}
+
+#vertical-comparison-table td {
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+    background: #1e293b;
+}
+
+.metric-name-cell {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    font-weight: 600;
+    border-right: 2px solid var(--border);
+    color: var(--text-primary);
+}
+
+.token-value-cell {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.advantage-win {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 4px;
+}
+
+.advantage-lose {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 4px;
+}
+
+/* Price change styles */
+.price-change {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.price-up {
+    color: #10b981;
+}
+
+.price-down {
+    color: #ef4444;
+}
+
+/* Rank badge styling for dark theme */
+.rank-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    min-width: 50px;
+    display: inline-block;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Symbol styling for dark theme */
+.symbol-badge {
+    background: #334155;
+    color: var(--text-primary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+/* Responsive design for vertical table */
+@media (max-width: 768px) {
+    #vertical-comparison-table {
+        min-width: 500px;
+    }
+    
+    .metric-name-cell {
+        font-size: 0.85rem;
+    }
+    
+    .token-value-cell {
+        padding: 0.75rem 0.25rem;
+    }
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
