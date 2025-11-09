@@ -382,28 +382,36 @@ export class TokenomicsComparison {
 const tokenomicsStyles = `
 <style>
 :root {
-    --bg-primary: #1a1b23;
-    --bg-secondary: #2d2e3a;
-    --bg-tertiary: #3a3b4a;
+    --bg-primary: #0a0e17;
+    --bg-secondary: #0f172a;
+    --bg-tertiary: #1e293b;
+    --border-color: #334155;
     --text-primary: #ffffff;
-    --text-secondary: #a0a0b0;
-    --text-muted: #6b7280;
-    --border-color: #3a3b4a;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
     --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
+    --accent-blue-glow: #60a5fa;
+    --accent-purple: #6366f1;
     --positive: #10b981;
     --negative: #ef4444;
+    --glow-effect: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
+
 .comparison-section {
-    background: var(--bg-secondary);
+    background: linear-gradient(145deg, #0f172a, #1e293b);
     border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                0 0 0 1px rgba(59, 130, 246, 0.1),
+                var(--glow-effect);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
+
 
 .comparison-section:hover {
     transform: translateY(-2px);
@@ -436,30 +444,32 @@ const tokenomicsStyles = `
     min-height: 60px;
 }
 
+
+
 .token-logo-left {
     position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 20%;
+    transform: translateX(-50%);
 }
-
 
 
 
 .token-logo-right {
     position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 20%;
+    transform: translateX(50%);
+
 }
 
 
 .token-icon-large {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    margin-top: 40px;
 }
+
 
 .token-placeholder {
     width: 48px;
@@ -467,6 +477,7 @@ const tokenomicsStyles = `
     background: var(--bg-tertiary);
     border-radius: 12px;
 }
+
 
 .vs-text {
     color: var(--text-secondary);
@@ -478,6 +489,7 @@ const tokenomicsStyles = `
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 1;
 }
 
 .section-title {
@@ -653,6 +665,7 @@ const tokenomicsStyles = `
         padding: 0;
         justify-content: center;
     }
+    
     
     .table-row {
         flex-direction: column;
