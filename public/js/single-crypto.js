@@ -1,9 +1,15 @@
 import { renderChart, createMockChart, destroyChart } from './components/singleToken/TokenChart.js';
 import { addToTable, clearTable } from './components/singleToken/TokenTable.js';
 import { displayCryptoDetails, showLoading, showError, showDetails } from './components/singleToken/TokenDetails.js';
+import { initializeTokenomics, destroyTokenomicsChart } from './components/singleToken/TokenomicsChart.js';
 
 const form = document.getElementById('crypto-form');
 const cryptoNameInput = document.getElementById('crypto-name');
+
+// Initialize tokenomics when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initializeTokenomics();
+});
 
 async function loadHistoricalData(cryptoName) {
   try {
@@ -44,6 +50,7 @@ form.addEventListener('submit', async (e) => {
 
     clearTable();
     destroyChart();
+    destroyTokenomicsChart(); // Clear any existing tokenomics chart
 
     if (coin) {
       displayCryptoDetails(coin, usdToZar);
