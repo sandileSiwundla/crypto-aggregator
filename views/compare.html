@@ -7,6 +7,461 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/compare-token.css">
+  <style>
+    /* Additional styles for period selector and download functionality */
+    .period-selector {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+
+    .period-selector label {
+      font-weight: 600;
+      color: #374151;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .period-select {
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 120px;
+    }
+
+    .period-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .period-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    .period-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .period-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .period-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .branding-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .abc-branding {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .abc-logo {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .abc-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .provided-by {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .abc-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .abc-tagline {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .download-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .download-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .advantage-win {
+      background: rgba(34, 197, 94, 0.1) !important;
+      border-left: 4px solid #22c55e !important;
+    }
+
+    .advantage-lose {
+      background: rgba(239, 68, 68, 0.1) !important;
+      border-left: 4px solid #ef4444 !important;
+    }
+
+    .token-value-cell {
+      padding: 1rem !important;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .price-up {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .price-down {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .metric-name-cell {
+      font-weight: 600;
+      background: #f8fafc;
+      border-right: 2px solid #e2e8f0;
+    }
+
+    .tokenomics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .abc-branding-tokenomics {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .abc-logo-tokenomics {
+      height: 35px;
+      width: auto;
+      border-radius: 6px;
+    }
+
+    .abc-info-tokenomics {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .powered-by {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .abc-name-tokenomics {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .download-tokenomics-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .download-tokenomics-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .download-tokenomics-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .tokenomics-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .tokenomics-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .tokenomics-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .tokenomics-card h4 {
+      margin: 0 0 1rem 0;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-bottom: 2px solid #f3f4f6;
+      padding-bottom: 0.5rem;
+    }
+
+    .supply-metrics, .market-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .supply-metric, .market-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .supply-metric span:first-child, .market-metric span:first-child {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .supply-metric span:last-child, .market-metric span:last-child {
+      font-weight: 700;
+      color: #1f2937;
+      background: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .market-metrics {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid #f3f4f6;
+    }
+
+    .market-metric {
+      border-left-color: #10b981;
+    }
+
+    .current-period-info {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: #f0f9ff;
+      border-radius: 4px;
+      border: 1px solid #e0f2fe;
+    }
+
+    .current-period-info small {
+      color: #0369a1;
+    }
+
+    /* Loading and status styles */
+    .loading, .results-loaded, .error-message {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+    }
+
+    .spinner {
+      border: 4px solid #f3f4f6;
+      border-left: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .retry-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .retry-btn:hover {
+      background: #2563eb;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Chart container improvements */
+    .chart-container {
+      position: relative;
+      height: 500px;
+      width: 100%;
+      margin: 1rem 0;
+    }
+
+    /* Print styles for better printing experience */
+    @media print {
+      .table-controls, .tokenomics-header {
+        background: #667eea !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+      }
+      
+      .download-btn, .download-tokenomics-btn {
+        display: none;
+      }
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 400px;
+      }
+      
+      .loading, .results-loaded, .error-message {
+        padding: 2rem 1rem;
+      }
+      
+      .period-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      
+      .period-buttons {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .period-btn {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      
+      .period-select {
+        width: 100%;
+      }
+
+      .table-controls, .tokenomics-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .abc-branding, .abc-branding-tokenomics {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+      
+      .download-btn, .download-tokenomics-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .tokenomics-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .period-buttons {
+        flex-wrap: wrap;
+      }
+      
+      .period-btn {
+        flex: 1 0 calc(50% - 0.25rem);
+        min-width: auto;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -57,55 +512,29 @@
       </section>
 
       <!-- Price Comparison Chart -->
-<section class="chart-section card">
-    <div class="section-header">
-        <h2><i class="fas fa-chart-line"></i> Price Comparison</h2>
-        <p>Historical price performance comparison</p>
-    </div>
-    
-    <!-- Period Selector -->
-    <div class="period-selector">
-        <label for="period-select"><i class="fas fa-calendar-alt"></i> Time Period:</label>
-        <select id="period-select" class="period-select">
+      <section class="chart-section card">
+        <div class="section-header">
+          <h2><i class="fas fa-chart-line"></i> Price Comparison</h2>
+          <p>Historical price performance comparison</p>
+        </div>
+        
+        <!-- Period Selector -->
+        <div class="period-selector">
+          <label for="period-select"><i class="fas fa-calendar-alt"></i> Time Period:</label>
+          <select id="period-select" class="period-select">
             <option value="7">7 Days</option>
             <option value="30" selected>30 Days</option>
             <option value="90">90 Days</option>
             <option value="365">1 Year</option>
             <option value="max">All Time</option>
-        </select>
-        <!-- Buttons will be added automatically by JavaScript -->
-    </div>
-    
-    <div class="chart-container">
-        <canvas id="comparison-chart"></canvas>
-    </div>
-</section>
-
-  <!-- Period Selector -->
-  <div class="period-selector">
-    <label for="period-select"><i class="fas fa-calendar-alt"></i> Time Period:</label>
-    <select id="period-select" class="period-select">
-      <option value="7">7 Days</option>
-      <option value="30" selected>30 Days</option>
-      <option value="90">90 Days</option>
-      <option value="365">1 Year</option>
-      <option value="max">All Time</option>
-    </select>
-    
-    <!-- Optional: Custom date range (advanced feature) -->
-    <div class="custom-range hidden" id="custom-range">
-      <label>From:</label>
-      <input type="date" id="start-date">
-      <label>To:</label>
-      <input type="date" id="end-date">
-      <button id="apply-custom-range" class="btn-small">Apply</button>
-    </div>
-  </div>
-  
-  <div class="chart-container">
-    <canvas id="comparison-chart"></canvas>
-  </div>
-</section>
+          </select>
+          <!-- Buttons will be added automatically by JavaScript -->
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="comparison-chart"></canvas>
+        </div>
+      </section>
 
       <!-- Detailed Comparison Table -->
       <section class="comparison-table-section card">
@@ -131,20 +560,28 @@
         </div>
       </section>
 
-<!-- Crypto Table Section -->
-<section class="crypto-table-section card">
-    <div class="section-header">
-        <h2><i class="fas fa-table"></i> Cryptocurrency Market Data</h2>
-        <p>Live cryptocurrency prices and metrics</p>
-    </div>
-    <div class="table-container">
-        <table id="crypto-table">
-            <tbody>
-                <!-- Table rows will be inserted here -->
+      <!-- Vertical Comparison Table -->
+      <section class="vertical-comparison-section card">
+        <div class="section-header">
+          <h2><i class="fas fa-columns"></i> Vertical Comparison</h2>
+          <p>Detailed side-by-side metrics comparison</p>
+        </div>
+        <div class="table-container">
+          <!-- Branding and download button will be automatically inserted here by JavaScript -->
+          <table id="vertical-comparison-table">
+            <thead>
+              <tr>
+                <th style="width: 200px;">Metric</th>
+                <th id="vertical-token1-header">Token 1</th>
+                <th id="vertical-token2-header">Token 2</th>
+              </tr>
+            </thead>
+            <tbody id="vertical-comparison-body">
+              <!-- Rows will be inserted here -->
             </tbody>
-        </table>
-    </div>
-</section>
+          </table>
+        </div>
+      </section>
 
       <!-- Tokenomics Comparison -->
       <section class="tokenomics-comparison card">
@@ -152,8 +589,8 @@
           <h2><i class="fas fa-pie-chart"></i> Tokenomics Comparison</h2>
           <p>Supply and market metrics comparison</p>
         </div>
-        <div class="tokenomics-grid" id="tokenomics-comparison">
-          <!-- Tokenomics data will be loaded here -->
+        <div class="tokenomics-container" id="tokenomics-comparison">
+          <!-- Tokenomics data with ABC branding and download button will be loaded here -->
         </div>
       </section>
     </main>
@@ -164,6 +601,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script type="module" src="/js/compare.js"></script>
 </body>
 </html>
