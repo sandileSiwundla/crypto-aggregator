@@ -68,7 +68,7 @@ export class TokenomicsComparison {
                     </div>
                     <div class="abc-watermark">
                         <div class="abc-brand">
-                            <span>Powered by</span>
+                            <span>Powered by:</span>
                             <div class="abc-logo-mini">
                                 <img src="${abcBranding.logo}" alt="ABC" onerror="this.style.display='none'">
                             </div>
@@ -137,7 +137,7 @@ export class TokenomicsComparison {
                     </div>
                     <div class="abc-watermark">
                         <div class="abc-brand">
-                            <span>Powered by</span>
+                            <span>Powered by:</span>
                             <div class="abc-logo-mini">
                                 <img src="${abcBranding.logo}" alt="ABC" onerror="this.style.display='none'">
                             </div>
@@ -218,7 +218,7 @@ export class TokenomicsComparison {
         </div>
         <div class="abc-watermark">
             <div class="abc-brand">
-                <span>Powered by</span>
+                <span>Powered by:</span>
                 <div class="abc-logo-mini">
                     <img src="${abcBranding.logo}" alt="ABC" onerror="this.style.display='none'">
                 </div>
@@ -440,7 +440,7 @@ const tokenomicsStyles = `
 
 .section-content {
     position: relative;
-    padding-bottom: 2.5rem;
+    padding-bottom: 4.5rem;
     border-radius: 12px;
     overflow: hidden;
 }
@@ -592,18 +592,28 @@ const tokenomicsStyles = `
 .abc-brand {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0;
     font-size: 0.95rem;
     color: var(--text-secondary);
+    font-weight: 600;
+    margin-left: -4px; /* This will pull the logo closer to the text */
+
 }
 
 .abc-logo-mini img {
-    height: 36px;
+    height: 46px;
     width: auto;
     border-radius: 6px;
     opacity: 0.8;
     margin-top: 0; 
+    margin-left: -2px; /* Negative margin on the image itself */
+
 }
+
+.abc-logo-mini {
+    margin-left: -6px;
+}
+
 
 /* Download Button */
 .download-section {
