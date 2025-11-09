@@ -432,25 +432,27 @@ const tokenomicsStyles = `
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.5rem;
-    padding: 0 2rem;
-}
-
-.token-logo-left, .token-logo-right {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
+    min-height: 60px;
 }
 
 .token-logo-left {
-    justify-content: flex-end;
-    padding-right: 2rem;
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
+
+
+
 .token-logo-right {
-    justify-content: flex-start;
-    padding-left: 2rem;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
 }
+
 
 .token-icon-large {
     width: 48px;
@@ -473,6 +475,9 @@ const tokenomicsStyles = `
     background: var(--bg-tertiary);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .section-title {
