@@ -44,9 +44,9 @@ export class TokenomicsComparison {
         </div>
         <div class="metrics-table">
             <div class="table-row header-row">
-                <div class="table-cell">${this.currentToken1.symbol}</div>
+                <div class="table-cell">${this.currentToken1.name}</div>
                 <div class="table-cell">Metric</div>
-                <div class="table-cell">${this.currentToken2.symbol}</div>
+                <div class="table-cell">${this.currentToken2.name}</div>
             </div>
             <div class="table-row">
                 <div class="table-cell value-cell token1-value">${this.currentToken1.symbol}</div>
@@ -111,9 +111,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.symbol}</div>
+                            <div class="table-cell">${this.currentToken1.name}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.symbol}</div>
+                            <div class="table-cell">${this.currentToken2.name}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value">${this.currentToken1.circulating_supply ? this.formatSupply(this.currentToken1.circulating_supply) : 'N/A'}</div>
@@ -178,9 +178,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.symbol}</div>
+                            <div class="table-cell">${this.currentToken1.name}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.symbol}</div>
+                            <div class="table-cell">${this.currentToken2.name}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value ${this.getChangeClass(this.currentToken1.quote?.USD?.percent_change_30d)}">
