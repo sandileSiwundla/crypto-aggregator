@@ -20,66 +20,71 @@ export class TokenomicsComparison {
         
         this.container.innerHTML = `
             <!-- Market Metrics Section -->
-            <div class="comparison-section" id="market-metrics-section">
-                <div class="section-content">
-                    <div class="section-token-header">
-                        <div class="token-comparison-title">
-                            <div class="token-pair-logos">
-                                <div class="token-logo-left">
-                                    ${this.currentToken1.logo ? `
-                                        <img src="${this.currentToken1.logo}" alt="${this.currentToken1.name}" 
-                                             class="token-icon-large" onerror="this.style.display='none'">
-                                    ` : '<div class="token-placeholder"></div>'}
-                                </div>
-                                <span class="vs-text">vs</span>
-                                <div class="token-logo-right">
-                                    ${this.currentToken2.logo ? `
-                                        <img src="${this.currentToken2.logo}" alt="${this.currentToken2.name}" 
-                                             class="token-icon-large" onerror="this.style.display='none'">
-                                    ` : '<div class="token-placeholder"></div>'}
-                                </div>
-                            </div>
-                            <h4 class="section-title">Market Metrics Comparison</h4>
-                        </div>
+<div class="comparison-section" id="market-metrics-section">
+    <div class="section-content">
+        <div class="section-token-header">
+            <div class="token-comparison-title">
+                <div class="token-pair-logos">
+                    <div class="token-logo-left">
+                        ${this.currentToken1.logo ? `
+                            <img src="${this.currentToken1.logo}" alt="${this.currentToken1.name}" 
+                                 class="token-icon-large" onerror="this.style.display='none'">
+                        ` : '<div class="token-placeholder"></div>'}
                     </div>
-                    <div class="metrics-table">
-                        <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.name}</div>
-                            <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.name}</div>
-                        </div>
-                        <div class="table-row">
-                            <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.market_cap || 0)}</div>
-                            <div class="table-cell metric-cell">Market Cap</div>
-                            <div class="table-cell value-cell token2-value">${this.formatNumber(this.currentToken2.quote?.USD?.market_cap || 0)}</div>
-                        </div>
-                        <div class="table-row">
-                            <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.fully_diluted_market_cap || 0)}</div>
-                            <div class="table-cell metric-cell">Fully Diluted MCap</div>
-                            <div class="table-cell value-cell token2-value">${this.formatNumber(this.currentToken2.quote?.USD?.fully_diluted_market_cap || 0)}</div>
-                        </div>
-                        <div class="table-row">
-                            <div class="table-cell value-cell token1-value">#${this.currentToken1.cmc_rank || 'N/A'}</div>
-                            <div class="table-cell metric-cell">Market Cap Rank</div>
-                            <div class="table-cell value-cell token2-value">#${this.currentToken2.cmc_rank || 'N/A'}</div>
-                        </div>
-                    </div>
-                    <div class="abc-watermark">
-                        <div class="abc-brand">
-                            <span>Powered by:</span>
-                            <div class="abc-logo-mini">
-                                <img src="${abcBranding.logo}" alt="ABC" onerror="this.style.display='none'">
-                            </div>
-                        </div>
+                    <span class="vs-text">vs</span>
+                    <div class="token-logo-right">
+                        ${this.currentToken2.logo ? `
+                            <img src="${this.currentToken2.logo}" alt="${this.currentToken2.name}" 
+                                 class="token-icon-large" onerror="this.style.display='none'">
+                        ` : '<div class="token-placeholder"></div>'}
                     </div>
                 </div>
-                <div class="download-section">
-                    <button class="download-btn download-market" title="Download Market Metrics">
-                        <i class="fas fa-camera"></i>
-                        Download Market Metrics
-                    </button>
+                <h4 class="section-title">Market Metrics Comparison</h4>
+            </div>
+        </div>
+        <div class="metrics-table">
+            <div class="table-row header-row">
+                <div class="table-cell">${this.currentToken1.symbol}</div>
+                <div class="table-cell">Metric</div>
+                <div class="table-cell">${this.currentToken2.symbol}</div>
+            </div>
+            <div class="table-row">
+                <div class="table-cell value-cell token1-value">${this.currentToken1.symbol}</div>
+                <div class="table-cell metric-cell">Symbol</div>
+                <div class="table-cell value-cell token2-value">${this.currentToken2.symbol}</div>
+            </div>
+            <div class="table-row">
+                <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.market_cap || 0)}</div>
+                <div class="table-cell metric-cell">Market Cap</div>
+                <div class="table-cell value-cell token2-value">${this.formatNumber(this.currentToken2.quote?.USD?.market_cap || 0)}</div>
+            </div>
+            <div class="table-row">
+                <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.fully_diluted_market_cap || 0)}</div>
+                <div class="table-cell metric-cell">Fully Diluted MCap</div>
+                <div class="table-cell value-cell token2-value">${this.formatNumber(this.currentToken2.quote?.USD?.fully_diluted_market_cap || 0)}</div>
+            </div>
+            <div class="table-row">
+                <div class="table-cell value-cell token1-value">#${this.currentToken1.cmc_rank || 'N/A'}</div>
+                <div class="table-cell metric-cell">Market Cap Rank</div>
+                <div class="table-cell value-cell token2-value">#${this.currentToken2.cmc_rank || 'N/A'}</div>
+            </div>
+        </div>
+        <div class="abc-watermark">
+            <div class="abc-brand">
+                <span>Powered by:</span>
+                <div class="abc-logo-mini">
+                    <img src="${abcBranding.logo}" alt="ABC" onerror="this.style.display='none'">
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="download-section">
+        <button class="download-btn download-market" title="Download Market Metrics">
+            <i class="fas fa-camera"></i>
+            Download Market Metrics
+        </button>
+    </div>
+</div>
 
             <!-- Supply Metrics Section -->
             <div class="comparison-section" id="supply-metrics-section">
@@ -106,9 +111,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.name}</div>
+                            <div class="table-cell">${this.currentToken1.symbol}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.name}</div>
+                            <div class="table-cell">${this.currentToken2.symbol}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value">${this.currentToken1.circulating_supply ? this.formatSupply(this.currentToken1.circulating_supply) : 'N/A'}</div>
@@ -173,9 +178,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.name}</div>
+                            <div class="table-cell">${this.currentToken1.symbol}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.name}</div>
+                            <div class="table-cell">${this.currentToken2.symbol}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value ${this.getChangeClass(this.currentToken1.quote?.USD?.percent_change_30d)}">
@@ -192,22 +197,14 @@ export class TokenomicsComparison {
                             <div class="table-cell value-cell token2-value">${this.currentToken2.platform?.name || 'Native'}</div>
                         </div>
                         <div class="table-row">
-                            <div class="table-cell value-cell token1-value ${this.getChangeClass(this.currentToken1.quote?.USD?.percent_change_7d)}">
-                                ${this.formatChange(this.currentToken1.quote?.USD?.percent_change_7d)}
-                            </div>
-                            <div class="table-cell metric-cell">7-Day Change</div>
-                            <div class="table-cell value-cell token2-value ${this.getChangeClass(this.currentToken2.quote?.USD?.percent_change_7d)}">
-                                ${this.formatChange(this.currentToken2.quote?.USD?.percent_change_7d)}
-                            </div>
+                            <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.volume_24h || 0)}</div>
+                            <div class="table-cell metric-cell">24h Trading Volume</div>
+                            <div class="table-cell value-cell token2-value">${this.formatNumber(this.currentToken2.quote?.USD?.volume_24h || 0)}</div>
                         </div>
                         <div class="table-row">
-                            <div class="table-cell value-cell token1-value ${this.getChangeClass(this.currentToken1.quote?.USD?.percent_change_24h)}">
-                                ${this.formatChange(this.currentToken1.quote?.USD?.percent_change_24h)}
-                            </div>
-                            <div class="table-cell metric-cell">24-Hour Change</div>
-                            <div class="table-cell value-cell token2-value ${this.getChangeClass(this.currentToken2.quote?.USD?.percent_change_24h)}">
-                                ${this.formatChange(this.currentToken2.quote?.USD?.percent_change_24h)}
-                            </div>
+                            <div class="table-cell value-cell token1-value">${this.calculateVolumeRatio(this.currentToken1)}%</div>
+                            <div class="table-cell metric-cell">Volume/MCap Ratio</div>
+                            <div class="table-cell value-cell token2-value">${this.calculateVolumeRatio(this.currentToken2)}%</div>
                         </div>
                     </div>
                     <div class="abc-watermark">
@@ -276,6 +273,16 @@ export class TokenomicsComparison {
     getChangeClass(change) {
         if (change === null || change === undefined) return '';
         return change >= 0 ? 'positive' : 'negative';
+    }
+
+    calculateVolumeRatio(token) {
+        const marketCap = token.quote?.USD?.market_cap || 0;
+        const volume = token.quote?.USD?.volume_24h || 0;
+        
+        if (marketCap === 0) return '0.00';
+        
+        const ratio = (volume / marketCap) * 100;
+        return ratio.toFixed(2);
     }
 
     async downloadSectionAsJPEG(sectionId, sectionName) {
@@ -635,7 +642,7 @@ const tokenomicsStyles = `
     opacity: 0.7;
     transition: opacity 0.2s ease;
     padding: 0.5rem 1rem;
-    border:none;
+    border: none;
 }
 
 .abc-watermark:hover {
@@ -664,7 +671,7 @@ const tokenomicsStyles = `
     opacity: 0.8;
     margin-top: 0;
     margin-left: -2px;
-    border:none;
+    border: none;
 }
 
 /* Download Button */
