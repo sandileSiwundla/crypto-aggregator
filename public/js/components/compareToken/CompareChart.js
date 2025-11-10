@@ -30,52 +30,72 @@ export class CompareChart {
                 labels,
                 datasets: [
                     {
-                        label: `${token1Data.coin.name} (%)`,
+                        label: `${token1Data.coin.name}`,
                         data: token1Percentage,
-                        borderColor: 'rgb(37, 99, 235)',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.2,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
                         fill: false,
-                        pointBackgroundColor: 'rgb(37, 99, 235)',
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
                         pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        pointHoverRadius: 5
+                        pointBorderWidth: 1,
+                        pointRadius: 1.5,
+                        pointHoverRadius: 3,
+                        pointHitRadius: 4
                     },
                     {
-                        label: `${token2Data.coin.name} (%)`,
+                        label: `${token2Data.coin.name}`,
                         data: token2Percentage,
-                        borderColor: 'rgb(124, 58, 237)',
-                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.2,
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
                         fill: false,
-                        pointBackgroundColor: 'rgb(124, 58, 237)',
+                        pointBackgroundColor: 'rgb(139, 92, 246)',
                         pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        pointHoverRadius: 5
+                        pointBorderWidth: 1,
+                        pointRadius: 1.5,
+                        pointHoverRadius: 3,
+                        pointHitRadius: 4
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
                 plugins: {
                     legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            boxWidth: 6,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#cbd5e1',
+                        bodyColor: '#e2e8f0',
+                        borderColor: 'rgba(59, 130, 246, 0.3)',
+                        borderWidth: 1,
+                        padding: 8,
+                        cornerRadius: 6,
+                        displayColors: true,
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
-                                if (label) {
-                                    label = label.replace(' (%)', '');
-                                }
                                 if (context.parsed.y !== null) {
                                     const value = context.parsed.y;
                                     const sign = value >= 0 ? '+' : '';
@@ -89,23 +109,47 @@ export class CompareChart {
                 scales: {
                     x: {
                         grid: {
-                            color: 'rgba(229, 231, 235, 0.5)'
+                            color: 'rgba(148, 163, 184, 0.1)',
+                            drawBorder: false
                         },
                         ticks: {
-                            maxTicksLimit: period <= 30 ? 10 : 8
+                            color: '#94a3b8',
+                            font: {
+                                size: 10
+                            },
+                            maxTicksLimit: period <= 30 ? 8 : 6
                         }
                     },
                     y: {
                         grid: {
-                            color: 'rgba(229, 231, 235, 0.5)'
+                            color: 'rgba(148, 163, 184, 0.1)',
+                            drawBorder: false
                         },
                         ticks: {
+                            color: '#94a3b8',
+                            font: {
+                                size: 10
+                            },
                             callback: function(value) {
                                 const sign = value >= 0 ? '+' : '';
                                 return `${sign}${value}%`;
-                            }
+                            },
+                            padding: 8
                         },
                         beginAtZero: true
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.3
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        right: 10,
+                        bottom: 10,
+                        left: 10
                     }
                 }
             }
@@ -134,7 +178,10 @@ export class CompareChart {
             date.setDate(date.getDate() - i);
             
             let label;
-            if (days <= 30) {
+            if (days <= 7) {
+                // For 7 days, show day names
+                label = date.toLocaleDateString('en-US', { weekday: 'short' });
+            } else if (days <= 30) {
                 // For short periods, show day and month
                 label = date.toLocaleDateString('en-US', { 
                     month: 'short', 
@@ -147,10 +194,9 @@ export class CompareChart {
                     day: 'numeric' 
                 });
             } else {
-                // For long periods, show month only or month/year
+                // For long periods, show month only
                 label = date.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    year: days > 180 ? 'numeric' : undefined
+                    month: 'short'
                 });
             }
             
@@ -164,14 +210,12 @@ export class CompareChart {
         let currentPrice = basePrice;
         
         // Adjust volatility based on period
-        const baseVolatility = 0.05;
-        const volatility = baseVolatility * Math.sqrt(days / 30); // Scale volatility with period
+        const baseVolatility = 0.03; // Reduced volatility for cleaner lines
+        const volatility = baseVolatility * Math.sqrt(days / 30);
         
         for (let i = 1; i <= days; i++) {
-            // More realistic price movements with period-adjusted volatility
-            const highVolatility = Math.random() < 0.1; // 10% chance of high volatility
-            const currentVolatility = highVolatility ? volatility * 3 : volatility;
-            const change = (Math.random() - 0.5) * currentVolatility;
+            // More realistic but smoother price movements
+            const change = (Math.random() - 0.45) * volatility; // Slightly biased to be more realistic
             currentPrice = Math.max(0.1, currentPrice * (1 + change));
             data.push(currentPrice);
         }
