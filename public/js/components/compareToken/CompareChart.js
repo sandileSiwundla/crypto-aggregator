@@ -143,7 +143,7 @@ export class CompareChart {
                     line: {
                         tension: 0.3
                     }
-                },
+                },  
                 layout: {
                     padding: {
                         top: 10,
