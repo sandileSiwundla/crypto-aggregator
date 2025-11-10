@@ -44,9 +44,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.symbol}</div>
+                            <div class="table-cell">${this.currentToken1.name}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.symbol}</div>
+                            <div class="table-cell">${this.currentToken2.name}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.market_cap || 0)}</div>
@@ -106,9 +106,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.symbol}</div>
+                            <div class="table-cell">${this.currentToken1.name}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.symbol}</div>
+                            <div class="table-cell">${this.currentToken2.name}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value">${this.currentToken1.circulating_supply ? this.formatSupply(this.currentToken1.circulating_supply) : 'N/A'}</div>
@@ -173,9 +173,9 @@ export class TokenomicsComparison {
                     </div>
                     <div class="metrics-table">
                         <div class="table-row header-row">
-                            <div class="table-cell">${this.currentToken1.symbol}</div>
+                            <div class="table-cell">${this.currentToken1.name}</div>
                             <div class="table-cell">Metric</div>
-                            <div class="table-cell">${this.currentToken2.symbol}</div>
+                            <div class="table-cell">${this.currentToken2.name}</div>
                         </div>
                         <div class="table-row">
                             <div class="table-cell value-cell token1-value ${this.getChangeClass(this.currentToken1.quote?.USD?.percent_change_30d)}">
@@ -397,7 +397,6 @@ const tokenomicsStyles = `
     --glow-effect: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
-
 .comparison-section {
     background: linear-gradient(145deg, #0f172a, #1e293b);
     border-radius: 16px;
@@ -412,10 +411,26 @@ const tokenomicsStyles = `
     overflow: hidden;
 }
 
+.comparison-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(59, 130, 246, 0.6), 
+        transparent
+    );
+}
 
 .comparison-section:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 
+                0 0 0 1px rgba(59, 130, 246, 0.3),
+                0 0 30px rgba(59, 130, 246, 0.4);
+    border-color: rgba(59, 130, 246, 0.4);
 }
 
 .section-content {
@@ -423,12 +438,21 @@ const tokenomicsStyles = `
     padding-bottom: 4.5rem;
     border-radius: 12px;
     overflow: hidden;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
 }
 
 .section-token-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    background: linear-gradient(90deg, 
+        rgba(59, 130, 246, 0.1), 
+        transparent, 
+        rgba(59, 130, 246, 0.1)
+    );
+    padding: 1rem;
+    border-radius: 8px;
+    margin: -0.5rem -0.5rem 1.5rem -0.5rem;
 }
 
 .token-comparison-title {
@@ -444,48 +468,55 @@ const tokenomicsStyles = `
     min-height: 60px;
 }
 
-
-
 .token-logo-left {
     position: absolute;
     left: 20%;
     transform: translateX(-50%);
 }
 
-
-
 .token-logo-right {
     position: absolute;
     right: 20%;
     transform: translateX(50%);
-
 }
-
 
 .token-icon-large {
     width: 70px;
     height: 70px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border: none;
     margin-top: 40px;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: linear-gradient(145deg, #1e40af, #3b82f6);
+    transition: all 0.3s ease;
 }
 
+.token-icon-large:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border-color: rgba(59, 130, 246, 0.8);
+    transform: scale(1.05);
+}
 
 .token-placeholder {
-    width: 48px;
-    height: 48px;
-    background: var(--bg-tertiary);
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(145deg, #1e40af, #3b82f6);
     border-radius: 12px;
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
-
 .vs-text {
-    color: var(--text-secondary);
-    font-weight: 500;
+    color: #bfdbfe;
+    font-weight: 600;
     font-size: 0.9rem;
-    background: var(--bg-tertiary);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -504,14 +535,15 @@ const tokenomicsStyles = `
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .table-row {
     display: flex;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .table-row:last-child {
@@ -519,9 +551,10 @@ const tokenomicsStyles = `
 }
 
 .header-row {
-    background: var(--bg-tertiary);
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
     font-weight: 600;
-    color: var(--text-primary);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .table-cell {
@@ -532,10 +565,11 @@ const tokenomicsStyles = `
     align-items: center;
     justify-content: center;
     font-size: 0.95rem;
+    border-color: rgba(59, 130, 246, 0.2) !important;
 }
 
 .header-row .table-cell {
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .header-row .table-cell:last-child {
@@ -548,42 +582,60 @@ const tokenomicsStyles = `
 }
 
 .token1-value {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    border-right: 1px solid var(--border-color);
+    background: linear-gradient(90deg, 
+        rgba(59, 130, 246, 0.15), 
+        rgba(59, 130, 246, 0.05)
+    );
+    color: #bfdbfe;
+    border-right: 1px solid rgba(59, 130, 246, 0.2);
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
 .token2-value {
-    background: rgba(139, 92, 246, 0.15);
-    color: #a78bfa;
-    border-left: 1px solid var(--border-color);
+    background: linear-gradient(90deg, 
+        rgba(139, 92, 246, 0.15), 
+        rgba(139, 92, 246, 0.05)
+    );
+    color: #ddd6fe;
+    border-left: 1px solid rgba(139, 92, 246, 0.2);
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
 }
 
 .metric-cell {
-    background: var(--bg-tertiary);
+    background: linear-gradient(145deg, #1e293b, #0f172a);
     color: var(--text-primary);
     font-weight: 500;
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
+    border-left: 1px solid rgba(59, 130, 246, 0.2);
+    border-right: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .positive {
-    background: rgba(16, 185, 129, 0.2) !important;
-    color: #34d399 !important;
+    background: linear-gradient(90deg, 
+        rgba(16, 185, 129, 0.25), 
+        rgba(16, 185, 129, 0.1)
+    ) !important;
+    color: #6ee7b7 !important;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
 
 .negative {
-    background: rgba(239, 68, 68, 0.2) !important;
-    color: #f87171 !important;
+    background: linear-gradient(90deg, 
+        rgba(239, 68, 68, 0.25), 
+        rgba(239, 68, 68, 0.1)
+    ) !important;
+    color: #fca5a5 !important;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
 }
 
 /* ABC Watermark */
 .abc-watermark {
     position: absolute;
-    bottom: 1rem;
+    bottom: -0.3rem;
     right: 1rem;
     opacity: 0.7;
     transition: opacity 0.2s ease;
+    padding: 0.5rem 1rem;
+    border:none;
 }
 
 .abc-watermark:hover {
@@ -595,9 +647,11 @@ const tokenomicsStyles = `
     align-items: center;
     gap: 0;
     font-size: 0.95rem;
-    color: var(--text-secondary);
+    bottom: -0.3rem;
+    color: #bfdbfe;
     font-weight: 600;
     margin-left: -4px;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
 .abc-logo-mini {
@@ -607,10 +661,10 @@ const tokenomicsStyles = `
 .abc-logo-mini img {
     height: 46px;
     width: auto;
-    border-radius: 6px;
     opacity: 0.8;
     margin-top: 0;
     margin-left: -2px;
+    border:none;
 }
 
 /* Download Button */
@@ -621,25 +675,28 @@ const tokenomicsStyles = `
 }
 
 .download-btn {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
     color: white;
     border: none;
-    padding: 0.875rem 1.75rem;
+    padding: 1rem 2rem;
     border-radius: 12px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4),
+                0 0 0 1px rgba(59, 130, 246, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .download-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6),
+                0 0 0 1px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
 }
 
 .download-btn:disabled {
@@ -664,8 +721,13 @@ const tokenomicsStyles = `
     .token-logo-left, .token-logo-right {
         padding: 0;
         justify-content: center;
+        position: static;
+        transform: none;
     }
     
+    .token-icon-large {
+        margin-top: 0;
+    }
     
     .table-row {
         flex-direction: column;
@@ -673,7 +735,7 @@ const tokenomicsStyles = `
     
     .table-cell {
         border: none !important;
-        border-bottom: 1px solid var(--border-color) !important;
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2) !important;
         justify-content: space-between;
         text-align: left;
         padding: 1rem;
@@ -682,7 +744,7 @@ const tokenomicsStyles = `
     .table-cell::before {
         content: attr(data-label);
         font-weight: 600;
-        color: var(--text-secondary);
+        color: #bfdbfe;
     }
     
     .header-row {
