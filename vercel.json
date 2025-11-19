@@ -13,7 +13,7 @@
     },
     {
       "src": "/style.css",
-      "dest": "/public/style.css"
+      "dest": "/style.css"
     },
     {
       "src": "/api/(.*)",
