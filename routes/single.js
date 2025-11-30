@@ -10,6 +10,8 @@ const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 async function getUSDToZARRate() {
   try {
     const res = await axios.get('https://api.frankfurter.app/latest?from=USD&to=ZAR');
+    console.log(res.data.rates?.ZAR)
+
     return res.data.rates?.ZAR;
   } catch (err) {
     console.error('Error fetching ZAR rate:', err);
