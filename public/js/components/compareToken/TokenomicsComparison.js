@@ -786,7 +786,9 @@ body {
     color: var(--text-primary);
 }
 
-/* Smooth transitions for theme changes */
+/* Smooth transitionts (or “perpetual futures”) are derivative instruments similar to futures contracts but without an expiry date.
+
+Traders can take longs for theme changes */
 .comparison-section,
 .metrics-table,
 .table-cell,

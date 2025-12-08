@@ -3,8 +3,9 @@ import { CompareTable } from './components/compareToken/CompareTable.js';
 import { VerticalCompareTable } from './components/compareToken/VerticalCompareTable.js';
 import { TokenCards } from './components/compareToken/TokenCards.js';
 import { TokenomicsComparison } from './components/compareToken/TokenomicsComparison.js';
-import { VolumeCompare } from './components/compareToken/VolumeCompare.js';
 import { TokenSearch } from './components/compareToken/TokenSearch.js';
+import { VolumeCompare } from './components/compareToken/VolumeCompare.js';
+
 
 class CryptoCompare {
     constructor() {
@@ -13,7 +14,7 @@ class CryptoCompare {
         this.verticalCompareTable = new VerticalCompareTable();
         this.tokenCards = new TokenCards();
         this.tokenomicsComparison = new TokenomicsComparison();
-        this.volumeCompare = new VolumeCompare();
+        this.volumeCompare = new VolumeCompare(); 
         this.tokenSearch = new TokenSearch(this.handleCompare.bind(this));
         
         this.currentToken1 = null;
@@ -154,7 +155,11 @@ class CryptoCompare {
             this.compareTable.render(token1Data, token2Data);
             this.verticalCompareTable.render(token1Data, token2Data);
             this.tokenomicsComparison.render(token1Data, token2Data);
+            
+            // MUIVolumeChart will fetch and display exchange data
+            // It accepts token parameters but focuses on exchange comparison
             this.volumeCompare.render(token1Data, token2Data, period);
+            
         } catch (error) {
             console.error('Error displaying comparison:', error);
             throw new Error('Failed to render comparison data');
@@ -164,7 +169,8 @@ class CryptoCompare {
     updateChartPeriod() {
         if (this.currentToken1 && this.currentToken2) {
             this.compareChart.updatePeriod(this.currentPeriod);
-            this.volumeCompare.updatePeriod(this.currentPeriod);
+            // MUIVolumeChart doesn't use period for exchange data
+            // but you could implement filtering if needed
         }
     }
 
@@ -349,9 +355,6 @@ class CryptoCompare {
         // Clear charts
         if (this.compareChart.chart) {
             this.compareChart.destroy();
-        }
-        if (this.volumeCompare.chart) {
-            this.volumeCompare.destroy();
         }
         
         // Clear comparison sections

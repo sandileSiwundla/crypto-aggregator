@@ -502,4 +502,108 @@
         border-right-color: #4b5563;
         color: #f9fafb;
     }
+
+    /* MUI Chart Specific Styles */
+.mui-chart-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.mui-chart-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.mui-card-content {
+    padding: 1.5rem;
+}
+
+.chart-title {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 0.75rem;
+}
+
+.mui-chart-container {
+    width: 100%;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.chart-type-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chart-type-selector label {
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.chart-type-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    min-width: 120px;
+}
+
+.chart-type-select option {
+    background: #059669;
+    color: white;
+}
+
+.chart-type-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chart-controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.75rem;
+    }
+    
+    .chart-type-selector {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .chart-type-select {
+        flex: 1;
+        max-width: 200px;
+    }
+    
+    .download-volume-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .mui-chart-container {
+        height: 300px;
+    }
+}
 }
