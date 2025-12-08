@@ -5,7 +5,7 @@ import { TokenCards } from './components/compareToken/TokenCards.js';
 import { TokenomicsComparison } from './components/compareToken/TokenomicsComparison.js';
 import { TokenSearch } from './components/compareToken/TokenSearch.js';
 import { VolumeCompare } from './components/compareToken/VolumeCompare.js';
-
+import { FeeComparison } from './components/compareToken/FeeComparison.js'; // Added import
 
 class CryptoCompare {
     constructor() {
@@ -15,6 +15,7 @@ class CryptoCompare {
         this.tokenCards = new TokenCards();
         this.tokenomicsComparison = new TokenomicsComparison();
         this.volumeCompare = new VolumeCompare(); 
+        this.feeComparison = new FeeComparison(); // Added FeeComparison instance
         this.tokenSearch = new TokenSearch(this.handleCompare.bind(this));
         
         this.currentToken1 = null;
@@ -155,10 +156,21 @@ class CryptoCompare {
             this.compareTable.render(token1Data, token2Data);
             this.verticalCompareTable.render(token1Data, token2Data);
             this.tokenomicsComparison.render(token1Data, token2Data);
-            
-            // MUIVolumeChart will fetch and display exchange data
-            // It accepts token parameters but focuses on exchange comparison
             this.volumeCompare.render(token1Data, token2Data, period);
+            
+            // Get exchange data for fee comparison
+            // In production, replace with actual exchange data fetching
+            const exchange1Data = this.getExchangeDataForToken(token1Data);
+            const exchange2Data = this.getExchangeDataForToken(token2Data);
+            
+            if (exchange1Data && exchange2Data) {
+                // Render fee comparison with associated exchange data
+                // Note: In production, you'd want to map tokens to their primary exchanges
+                this.renderFeeComparison(exchange1Data, exchange2Data);
+            } else {
+                // Fallback: Compare Binance vs Coinbase as default exchanges
+                this.renderDefaultFeeComparison();
+            }
             
         } catch (error) {
             console.error('Error displaying comparison:', error);
@@ -166,11 +178,78 @@ class CryptoCompare {
         }
     }
 
+    renderFeeComparison(exchange1Data, exchange2Data) {
+        try {
+            // Check if fee comparison container exists
+            let feeComparisonSection = document.getElementById('fee-comparison-section');
+            
+            if (!feeComparisonSection) {
+                // Create the fee comparison section if it doesn't exist
+                feeComparisonSection = document.createElement('div');
+                feeComparisonSection.id = 'fee-comparison-section';
+                feeComparisonSection.className = 'fee-comparison-section';
+                
+                // Insert after volume comparison section or at the end
+                const volumeSection = document.getElementById('volume-comparison-section');
+                if (volumeSection && volumeSection.parentNode) {
+                    volumeSection.parentNode.insertBefore(feeComparisonSection, volumeSection.nextSibling);
+                } else {
+                    // Fallback: append to results container
+                    const resultsContainer = document.getElementById('comparison-results');
+                    if (resultsContainer) {
+                        resultsContainer.appendChild(feeComparisonSection);
+                    }
+                }
+            }
+            
+            // Create container for fee comparison
+            const feeContainer = document.createElement('div');
+            feeContainer.id = 'fee-comparison';
+            feeComparisonSection.innerHTML = ''; // Clear previous content
+            feeComparisonSection.appendChild(feeContainer);
+            
+            // Render fee comparison
+            this.feeComparison.render(exchange1Data.name, exchange2Data.name);
+            
+        } catch (error) {
+            console.error('Error rendering fee comparison:', error);
+            // Don't throw - fee comparison is secondary feature
+        }
+    }
+
+    renderDefaultFeeComparison() {
+        try {
+            // Render default fee comparison between major exchanges
+            // This is a fallback when token-specific exchange data isn't available
+            const defaultExchanges = ['Binance', 'Coinbase'];
+            this.renderFeeComparison(
+                { name: defaultExchanges[0] },
+                { name: defaultExchanges[1] }
+            );
+        } catch (error) {
+            console.error('Error rendering default fee comparison:', error);
+        }
+    }
+
+    getExchangeDataForToken(tokenData) {
+        // Map tokens to their primary exchanges
+        // In production, this would be an API call or database query
+        const tokenExchangeMap = {
+            'BTC': { name: 'Binance', logo: 'https://example.com/binance-logo.png' },
+            'ETH': { name: 'Coinbase', logo: 'https://example.com/coinbase-logo.png' },
+            'SOL': { name: 'FTX', logo: 'https://example.com/ftx-logo.png' },
+            'XRP': { name: 'Kraken', logo: 'https://example.com/kraken-logo.png' },
+            'ADA': { name: 'Binance', logo: 'https://example.com/binance-logo.png' },
+            'DOT': { name: 'Kraken', logo: 'https://example.com/kraken-logo.png' }
+        };
+        
+        return tokenExchangeMap[tokenData.symbol] || { name: 'Binance', logo: null };
+    }
+
     updateChartPeriod() {
         if (this.currentToken1 && this.currentToken2) {
             this.compareChart.updatePeriod(this.currentPeriod);
-            // MUIVolumeChart doesn't use period for exchange data
-            // but you could implement filtering if needed
+            this.volumeCompare.updatePeriod(this.currentPeriod);
         }
     }
 
@@ -228,7 +307,7 @@ class CryptoCompare {
             <div class="loading">
                 <div class="spinner"></div>
                 <p>Comparing cryptocurrencies...</p>
-                <p class="loading-subtext">Fetching latest market data</p>
+                <p class="loading-subtext">Fetching latest market data including fee structures</p>
             </div>
         `;
         resultsSection.classList.remove('hidden');
@@ -244,6 +323,7 @@ class CryptoCompare {
                 <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i>
                 <h3>Comparison Complete!</h3>
                 <p>Successfully compared ${this.currentToken1.name} vs ${this.currentToken2.name}</p>
+                <p><small>Including price charts, tokenomics, volume, and fee structures</small></p>
                 <div class="current-period-info">
                     <small>Showing data for: <strong>${this.getPeriodLabel(this.currentPeriod)}</strong></small>
                 </div>
@@ -362,7 +442,8 @@ class CryptoCompare {
             'vertical-comparison-table',
             'comparison-table-body',
             'tokenomics-comparison',
-            'volume-comparison-section'
+            'volume-comparison-section',
+            'fee-comparison-section' // Added fee comparison section
         ];
         
         sectionsToClear.forEach(sectionId => {
@@ -393,7 +474,13 @@ class CryptoCompare {
         const data = {
             comparison: this.getCurrentComparison(),
             timestamp: new Date().toISOString(),
-            dataSource: 'CryptoResearch Analytics'
+            dataSource: 'CryptoResearch Analytics',
+            components: [
+                'Price Charts',
+                'Tokenomics',
+                'Volume Analysis',
+                'Fee Structures' // Added fee structures to export
+            ]
         };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
