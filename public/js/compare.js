@@ -5,7 +5,7 @@ import { TokenCards } from './components/compareToken/TokenCards.js';
 import { TokenomicsComparison } from './components/compareToken/TokenomicsComparison.js';
 import { TokenSearch } from './components/compareToken/TokenSearch.js';
 import { VolumeCompare } from './components/compareToken/VolumeCompare.js';
-import { FeeComparison } from './components/compareToken/FeeComparison.js'; // Added import
+import { FeeComparison } from './components/compareToken/feeComparison.js';
 
 class CryptoCompare {
     constructor() {
