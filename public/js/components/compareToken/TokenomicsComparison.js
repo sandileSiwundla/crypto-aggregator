@@ -53,6 +53,16 @@ export class TokenomicsComparison {
                 <div class="table-cell metric-cell">Symbol</div>
                 <div class="table-cell value-cell token2-value">${this.currentToken2.symbol}</div>
             </div>
+            <!-- New Price row -->
+<div class="table-row">
+    <div class="table-cell value-cell token1-value">
+        $${this.formatNumber(this.currentToken1.quote?.USD?.price || 0)}
+    </div>
+    <div class="table-cell metric-cell">Price</div>
+    <div class="table-cell value-cell token2-value">
+        $${this.formatNumber(this.currentToken2.quote?.USD?.price || 0)}
+    </div>
+</div>
             <div class="table-row">
                 <div class="table-cell value-cell token1-value">${this.formatNumber(this.currentToken1.quote?.USD?.market_cap || 0)}</div>
                 <div class="table-cell metric-cell">Market Cap</div>
