@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CryptoResearch Analytics</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/single-token.css">
+
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/single-token.css" />
 </head>
+
 <body>
   <div class="container">
+
+    <!-- HEADER -->
     <header class="research-header">
       <div class="header-content">
         <i class="fas fa-chart-line"></i>
@@ -18,15 +25,24 @@
       </div>
     </header>
 
+    <!-- MAIN CONTENT -->
     <main class="main-content">
+
+      <!-- SEARCH -->
       <section class="search-section card">
         <div class="section-header">
           <h2><i class="fas fa-search"></i> Research Query</h2>
           <p>Enter any cryptocurrency name or symbol</p>
         </div>
+
         <form id="crypto-form" class="search-form">
           <div class="input-group">
-            <input type="text" id="crypto-name" placeholder="e.g., Bitcoin, BTC, Ethereum, ETH..." autocomplete="off">
+            <input
+              type="text"
+              id="crypto-name"
+              placeholder="e.g., Bitcoin, BTC, Ethereum, ETH..."
+              autocomplete="off"
+            />
             <button type="submit" class="search-btn">
               <i class="fas fa-chart-bar"></i>
               Analyze Data
@@ -35,57 +51,77 @@
         </form>
       </section>
 
+      <!-- BASIC TOKEN DETAILS (OPTIONAL / EXISTING) -->
       <section id="crypto-details" class="crypto-details card hidden">
-        <!-- Dynamic content will be loaded here -->
+        <!-- Dynamic content -->
       </section>
 
+      <!-- PRICE CHART -->
       <section class="chart-section card">
         <div class="section-header">
           <h2><i class="fas fa-chart-line"></i> Price History</h2>
           <p>Historical price performance analysis</p>
         </div>
+
         <div class="chart-container">
           <canvas id="historical-chart"></canvas>
         </div>
       </section>
-
+      <!-- RESEARCH TABLE -->
       <section class="data-section card">
         <div class="section-header">
           <h2><i class="fas fa-table"></i> Research Data</h2>
           <p>Comprehensive cryptocurrency metrics</p>
         </div>
+
         <div class="table-container">
-  <table id="crypto-table">
-    <thead>
-      <tr>
-        <th>Rank</th>
-        <th>Cryptocurrency</th>
-        <th>Symbol</th>
-        <th>Price (USD)</th>
-        <th>Price (ZAR)</th>
-        <th>Market Cap</th>
-        <th>24h Volume</th>
-        <th>Circulating Supply</th>
-      </tr>
-    </thead>
-    <tbody id="crypto-table-body">
-      <!-- Rows will be inserted here -->
-    </tbody>
-  </table>
-</div>
+          <table id="crypto-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Cryptocurrency</th>
+                <th>Symbol</th>
+                <th>Price (USD)</th>
+                <th>Price (ZAR)</th>
+                <th>Market Cap</th>
+                <th>24h Volume</th>
+                <th>Circulating Supply</th>
+              </tr>
+            </thead>
+            <tbody id="crypto-table-body">
+              <!-- Rows inserted dynamically -->
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      <!-- Add this after the chart section and before the data section -->
-<section id="tokenomics-section" class="tokenomics-section card">
-    <!-- Content will be loaded by TokenomicsChart.js -->
-</section>
+      <section
+        id="token-analysis"
+        class="token-analysis-section card"
+      >
+        <!-- SingleTokenAnalysis.render() injects content here -->
+      </section>
+
+      
+
+      <!-- TOKENOMICS (OPTIONAL / FUTURE) -->
+      <section id="tokenomics-section" class="tokenomics-section card">
+        <!-- TokenomicsChart.js -->
+      </section>
+
     </main>
 
+    <!-- FOOTER -->
     <footer class="research-footer">
-      <p>Academic Research Tool • Data provided by CoinMarketCap API • For research purposes only</p>
+      <p>
+        Academic Research Tool • Data provided by CoinMarketCap API •
+        For research purposes only
+      </p>
     </footer>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module" src="/js/single-crypto.js"></script></body>
+  <script type="module" src="/js/single-crypto.js"></script>
+</body>
 </html>
