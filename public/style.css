@@ -1,21 +1,39 @@
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #8b5cf6;
+  --accent: #10b981;
+  --accent-red: #ef4444;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  min-height: 100vh;
+}
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #ffffff;
   line-height: 1.6;
 }
 
-.background-gradient {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #4c1d95 50%, #7e22ce 75%, #c026d3 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-}
+
 
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }

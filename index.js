@@ -21,9 +21,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/index.html'));
 });
 
-app.get('/all', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/all-cryptos.html'));
-});
+
 
 app.get('/token', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/single-token.html'));
