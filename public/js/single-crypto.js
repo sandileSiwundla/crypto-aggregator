@@ -2,13 +2,18 @@ import { renderChart, createMockChart, destroyChart } from './components/singleT
 import { addToTable, clearTable } from './components/singleToken/TokenTable.js';
 import { displayCryptoDetails, showLoading, showError, showDetails } from './components/singleToken/TokenDetails.js';
 import { initializeTokenomics, destroyTokenomicsChart } from './components/singleToken/TokenomicsChart.js';
+import { SingleTokenAnalysis } from './components/singleToken/SingleTokenAnalysis.js';
 
 const form = document.getElementById('crypto-form');
 const cryptoNameInput = document.getElementById('crypto-name');
+let tokenAnalysis = null;
 
 // Initialize tokenomics when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initializeTokenomics();
+    
+    // Initialize SingleTokenAnalysis
+    tokenAnalysis = new SingleTokenAnalysis();
 });
 
 async function loadHistoricalData(cryptoName) {
@@ -50,9 +55,18 @@ form.addEventListener('submit', async (e) => {
 
     clearTable();
     destroyChart();
-    destroyTokenomicsChart(); // Clear any existing tokenomics chart
+    destroyTokenomicsChart();
+    
+    // Clear previous token analysis if exists
+    if (tokenAnalysis) {
+      tokenAnalysis.hide();
+    }
 
     if (coin) {
+      // Display token analysis
+      tokenAnalysis.render({ coin });
+      
+      // Display other details
       displayCryptoDetails(coin, usdToZar);
       await loadHistoricalData(cryptoName);
       addToTable(coin, usdToZar);
@@ -63,6 +77,11 @@ form.addEventListener('submit', async (e) => {
   } catch (err) {
     console.error('Error fetching crypto data:', err);
     showError(`Error: ${err.message}`);
+    
+    // Clear token analysis on error
+    if (tokenAnalysis) {
+      tokenAnalysis.hide();
+    }
   }
 });
 
@@ -73,4 +92,13 @@ cryptoNameInput.addEventListener('focus', () => {
 
 cryptoNameInput.addEventListener('blur', () => {
   cryptoNameInput.parentElement.style.transform = 'scale(1)';
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+  if (tokenAnalysis) {
+    tokenAnalysis.hide();
+  }
+  destroyChart();
+  destroyTokenomicsChart();
 });
