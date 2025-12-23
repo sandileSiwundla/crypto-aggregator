@@ -1,3 +1,6 @@
+"use client";
+
+
 let chart;
 
 export function renderChart(quotes) {

@@ -1,3 +1,6 @@
+"use client";
+
+
 export class TokenCards {
     constructor() {
         this.container = document.getElementById('comparison-results');

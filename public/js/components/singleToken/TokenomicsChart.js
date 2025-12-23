@@ -1,3 +1,6 @@
+"use client";
+
+
 let chart = null;
 let categories = [];
 let walletData = new Map();

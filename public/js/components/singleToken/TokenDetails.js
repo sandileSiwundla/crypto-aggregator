@@ -1,3 +1,6 @@
+"use client";
+
+
 const cryptoDetails = document.getElementById('crypto-details');
 
 export function displayCryptoDetails(coin, usdToZar) {

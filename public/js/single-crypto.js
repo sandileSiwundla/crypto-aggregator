@@ -1,3 +1,5 @@
+"use client";
+
 import { renderChart, createMockChart, destroyChart } from './components/singleToken/TokenChart.js';
 import { addToTable, clearTable } from './components/singleToken/TokenTable.js';
 import { displayCryptoDetails, showLoading, showError, showDetails } from './components/singleToken/TokenDetails.js';

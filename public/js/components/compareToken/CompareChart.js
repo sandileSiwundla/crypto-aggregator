@@ -1,3 +1,6 @@
+"use client";
+
+
 export class CompareChart {
     constructor() {
         this.chart = null;

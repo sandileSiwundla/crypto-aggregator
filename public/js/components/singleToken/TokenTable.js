@@ -1,3 +1,6 @@
+"use client";
+
+
 const table = document.getElementById('crypto-table');
 const tableBody = table.querySelector('tbody');
 

@@ -1,4 +1,5 @@
-// ABC Africa Blockchain Club branding
+"use client";
+
 const abcBranding = {
     name: "ABC Africa Blockchain Club",
     logo: "/ABC.png",

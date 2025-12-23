@@ -1,3 +1,6 @@
+"use client";
+
+
 export class TokenSearch {
     constructor(onCompare) {
         this.onCompare = onCompare;

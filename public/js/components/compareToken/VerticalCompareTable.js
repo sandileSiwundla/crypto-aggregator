@@ -1,3 +1,6 @@
+"use client";
+
+
 const table = document.getElementById('vertical-comparison-table');
 const tableBody = table.querySelector('tbody');
 
