@@ -395,7 +395,6 @@ export class TokenomicsComparison {
     }
 }
 
-// Updated CSS styles with dark mode and rounded edges
 const tokenomicsStyles = `
 <style>
 :root {
