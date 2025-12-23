@@ -3,7 +3,6 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allRoutes = require('./routes/all');
 const singleRoutes = require('./routes/single');
 
 // Serve static files from public directory
