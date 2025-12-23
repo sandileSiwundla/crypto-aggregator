@@ -13,14 +13,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 // API routes
-app.use('/api/all', allRoutes);
 app.use('/api/single', singleRoutes);
 
 // HTML pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/index.html'));
 });
-
 
 
 app.get('/token', (req, res) => {
