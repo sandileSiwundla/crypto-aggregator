@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AssetView - Crypto Asset Analysis</title>
-  <link rel="stylesheet" href="css/style.css">
+
+  <!-- ✅ absolute path -->
+  <link rel="stylesheet" href="/css/style.css">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -21,47 +23,26 @@
       <main class="main-content">
         <div class="hero-section">
           <h2 class="hero-title">Professional Crypto Asset Intelligence</h2>
-          <p class="hero-subtitle">Comprehensive market data, tokenomics, and research tools for informed investment decisions</p>
+          <p class="hero-subtitle">
+            Comprehensive market data, tokenomics, and research tools for informed investment decisions
+          </p>
         </div>
 
         <div class="navigation-grid">
-
-          <a href="/token" class="nav-card">
+          <!-- 👇 JS will handle routing -->
+          <a href="/single-token.html" class="nav-card">
             <div class="card-icon">🔍</div>
             <h3>Token Analysis</h3>
             <p>Deep dive into individual tokens with price history, supply data, and fundamentals</p>
             <span class="card-cta">Analyze Tokens →</span>
           </a>
 
-          <a href="/compare" class="nav-card">
+          <a href="/compare.html" class="nav-card">
             <div class="card-icon">⚖️</div>
             <h3>Compare Assets</h3>
             <p>Side-by-side comparison of multiple cryptocurrencies and their metrics</p>
             <span class="card-cta">Start Comparing →</span>
           </a>
-        </div>
-
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-icon">📈</div>
-            <h4>Real-time Data</h4>
-            <p>Live price feeds and market metrics updated continuously</p>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🔬</div>
-            <h4>Research Tools</h4>
-            <p>Advanced analytics and visualization for thorough analysis</p>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🌐</div>
-            <h4>Multi-Source</h4>
-            <p>Aggregated data from multiple reliable sources</p>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">💡</div>
-            <h4>Smart Insights</h4>
-            <p>AI-powered insights and market intelligence</p>
-          </div>
         </div>
       </main>
 
@@ -70,5 +51,8 @@
       </footer>
     </div>
   </div>
+
+  <!-- ✅ load client-side router -->
+  <script src="/js/index.js" defer></script>
 </body>
 </html>

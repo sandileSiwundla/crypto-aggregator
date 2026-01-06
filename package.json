@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "api/app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node api/app.js",
     "dev": "node api/app.js"
   },
   "dependencies": {
@@ -12,6 +12,7 @@
     "@mui/material": "^7.3.5",
     "@mui/x-charts": "^8.20.0",
     "axios": "^1.6.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "html2canvas": "^1.4.1",
