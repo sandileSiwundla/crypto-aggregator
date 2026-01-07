@@ -1,9 +1,9 @@
 // public/js/index.js
 
 const routes = {
-  '/': '/pages/index.html',
-  '/single-token': '/pages/single-token.html',
-  '/compare': '/pages/compare.html'
+  '/': '/index.html',
+  '/js/single-token': '/single-token.html',
+  '/compare': '/compare.html'
 };
 
 const app = document.getElementById('app');

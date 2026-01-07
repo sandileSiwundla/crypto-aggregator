@@ -55,9 +55,7 @@ app.use(express.static(publicPath));
 // =======================
 // Page routes
 // =======================
-app.get('/', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
-});
+
 
 app.get('/token', (req, res) => {
   res.sendFile(path.join(publicPath, 'single-token.html'));
