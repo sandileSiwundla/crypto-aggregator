@@ -1,10 +1,10 @@
 
-import { CompareChart } from './components/compareToken/CompareChart.js';
-import { CompareTable } from './components/compareToken/CompareTable.js';
-import { VerticalCompareTable } from './components/compareToken/VerticalCompareTable.js';
-import { TokenCards } from './components/compareToken/TokenCards.js';
+import { CompareChart } from '../components/compareToken/CompareChart.js';
+import { CompareTable } from '../components/compareToken/CompareTable.js';
+import { VerticalCompareTable } from '../components/compareToken/VerticalCompareTable.js';
+import { TokenCards } from '../components/compareToken/TokenCards.js';
 import { TokenomicsComparison } from './components/compareToken/TokenomicsComparison.js';
-import { TokenSearch } from './components/compareToken/TokenSearch.js';
+import { TokenSearch } from '../components/compareToken/TokenSearch.js';
 
 class CryptoCompare {
     constructor() {
