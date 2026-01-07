@@ -1,4 +1,3 @@
-"use client";
 
 import { CompareChart } from './components/compareToken/CompareChart.js';
 import { CompareTable } from './components/compareToken/CompareTable.js';
