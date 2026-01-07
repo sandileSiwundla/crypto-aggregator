@@ -93,11 +93,11 @@ module.exports = app;
 // =======================
 // Local dev server
 // =======================
-// if (require.main === module) {
-//   const PORT = process.env.PORT || 3000;
-//   app.listen(PORT, () => {
-//     console.log(`🚀 Server running at http://localhost:${PORT}`);
-//     console.log(`📁 Public folder: ${publicPath}`);
-//     console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
-//   });
-// }
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+    console.log(`📁 Public folder: ${publicPath}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  });
+}
