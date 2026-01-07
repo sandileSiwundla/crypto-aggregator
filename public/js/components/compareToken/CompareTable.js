@@ -1,4 +1,3 @@
-"use client";
 
 
 const table = document.getElementById('comparison-table');

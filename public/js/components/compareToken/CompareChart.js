@@ -1,5 +1,3 @@
-"use client";
-
 
 export class CompareChart {
     constructor() {

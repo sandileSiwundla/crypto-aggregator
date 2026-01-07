@@ -1,4 +1,3 @@
-"use client";
 
 const abcBranding = {
     name: "ABC Africa Blockchain Club",
