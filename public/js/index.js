@@ -8,9 +8,7 @@ const routes = {
 
 const app = document.getElementById('app');
 
-/**
- * Load HTML partial into the app container
- */
+
 async function loadPage(path) {
   const page = routes[path] || routes['/'];
 
