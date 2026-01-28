@@ -1,4 +1,3 @@
-// public/js/index.js
 
 const routes = {
   '/': '/index.html',
