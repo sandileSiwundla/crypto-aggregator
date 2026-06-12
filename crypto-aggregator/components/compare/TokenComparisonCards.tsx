@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { formatNumber, formatChange, getChangeClass } from '@/utils/tokenUtils';
+import { formatNumber, formatChange, getChangeClass } from '@/lib/tokenUtils';
 
 interface TokenQuote {
   price: number;
