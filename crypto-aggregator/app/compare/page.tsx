@@ -98,9 +98,10 @@ export default function ComparePage() {
       setToken1History(history1);
       setToken2History(history2);
       setUsdToZar(data1.usdToZar || data2.usdToZar || null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Comparison error:', err);
-      setError(err.message || 'Failed to fetch comparison data');
+      const message = err instanceof Error ? err.message : 'Failed to fetch comparison data';
+      setError(message);
       setToken1(null);
       setToken2(null);
     } finally {

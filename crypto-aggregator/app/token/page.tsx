@@ -43,6 +43,12 @@ interface ApiResponse {
   usdToZar: number | null;
 }
 
+type CryptoTableRow = {
+  name: string;
+  symbol: string;
+  [key: string]: unknown;
+};
+
 export default function TokenPage() {
   const [cryptoName, setCryptoName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -88,9 +94,10 @@ export default function TokenPage() {
       setData(tokenData);
       setAllCoins(topCoins);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fetch error:', err);
-      setError(err.message || 'Failed to fetch cryptocurrency data');
+      const message = err instanceof Error ? err.message : 'Failed to fetch cryptocurrency data';
+      setError(message);
       setData(null);
     } finally {
       setLoading(false);

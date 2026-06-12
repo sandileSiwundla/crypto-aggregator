@@ -11,6 +11,7 @@ import {
   Tooltip,
   TooltipProps,
   Legend,
+  LegendPayload,
 } from 'recharts';
 
 interface PricePoint {
@@ -40,6 +41,19 @@ interface ChartDataPoint {
   token2Percentage: number;
 }
 
+interface TooltipPayloadEntry {
+  name?: string;
+  value?: number;
+  color?: string;
+  dataKey?: string;
+  payload: ChartDataPoint;
+}
+
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  payload?: TooltipPayloadEntry[];
+  label?: string;
+}
+
 const timeRanges = [
   { label: '7D', days: 7 },
   { label: '14D', days: 14 },
@@ -47,29 +61,34 @@ const timeRanges = [
   { label: '90D', days: 90 },
 ];
 
-function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   
   return (
     <div className="rounded-xl border border-slate-700/60 bg-slate-900/95 backdrop-blur-sm px-4 py-3 shadow-2xl text-sm">
       <p className="text-slate-400 mb-2 text-xs">{label}</p>
-      {payload.map((entry: any, index: number) => (
-        <div key={index} className="flex items-center gap-3 mb-1 last:mb-0">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-          <span className="text-slate-300 text-xs">{entry.name}:</span>
-          <span className="text-white font-semibold text-sm">
-            ${entry.value?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
-          </span>
-          {entry.payload[`${entry.dataKey}Percentage`] !== undefined && (
-            <span className={`text-xs font-medium ${
-              entry.payload[`${entry.dataKey}Percentage`] >= 0 ? 'text-emerald-400' : 'text-red-400'
-            }`}>
-              ({entry.payload[`${entry.dataKey}Percentage`] >= 0 ? '+' : ''}
-              {entry.payload[`${entry.dataKey}Percentage`]?.toFixed(2)}%)
+      {payload.map((entry: TooltipPayloadEntry, index: number) => {
+        const percentageKey = entry.dataKey ? `${entry.dataKey}Percentage` as keyof ChartDataPoint : undefined;
+        const percentageValue = percentageKey ? entry.payload[percentageKey] as number | undefined : undefined;
+
+        return (
+          <div key={index} className="flex items-center gap-3 mb-1 last:mb-0">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="text-slate-300 text-xs">{entry.name}:</span>
+            <span className="text-white font-semibold text-sm">
+              ${entry.value?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
             </span>
-          )}
-        </div>
-      ))}
+            {percentageValue !== undefined && (
+              <span className={`text-xs font-medium ${
+                percentageValue >= 0 ? 'text-emerald-400' : 'text-red-400'
+              }`}>
+                ({percentageValue >= 0 ? '+' : ''}
+                {percentageValue.toFixed(2)}%)
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -226,7 +245,7 @@ export default function CompareChart({
           
           <Legend
             wrapperStyle={{ paddingTop: 16 }}
-            formatter={(value, entry: any) => (
+            formatter={(value, entry: LegendPayload | undefined) => (
               <span className="text-slate-300 text-sm font-medium">{value}</span>
             )}
           />

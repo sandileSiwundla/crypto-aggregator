@@ -7,24 +7,33 @@ interface CompareFormProps {
   loading: boolean;
 }
 
+type CryptoSuggestion = {
+  id: number;
+  name: string;
+  symbol: string;
+  logo?: string;
+};
+
 export default function CompareForm({ onCompare, loading }: CompareFormProps) {
   const [token1, setToken1] = useState('');
   const [token2, setToken2] = useState('');
-  const [suggestions1, setSuggestions1] = useState<any[]>([]);
-  const [suggestions2, setSuggestions2] = useState<any[]>([]);
+  const [suggestions1, setSuggestions1] = useState<CryptoSuggestion[]>([]);
+  const [suggestions2, setSuggestions2] = useState<CryptoSuggestion[]>([]);
   const [showSuggestions1, setShowSuggestions1] = useState(false);
   const [showSuggestions2, setShowSuggestions2] = useState(false);
 
-  const fetchSuggestions = useCallback(async (query: string) => {
+  const fetchSuggestions = useCallback(async (query: string): Promise<CryptoSuggestion[]> => {
     if (query.length < 2) return [];
     try {
       const res = await fetch(`/api/cryptocurrency/listings/latest?limit=10`);
       const data = await res.json();
       if (data.data) {
-        return data.data.filter((coin: any) =>
-          coin.name.toLowerCase().includes(query.toLowerCase()) ||
-          coin.symbol.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5);
+        return (data.data as Partial<CryptoSuggestion>[])
+          .filter((coin) =>
+            (coin.name ?? '').toLowerCase().includes(query.toLowerCase()) ||
+            (coin.symbol ?? '').toLowerCase().includes(query.toLowerCase())
+          )
+          .slice(0, 5) as CryptoSuggestion[];
       }
       return [];
     } catch {
