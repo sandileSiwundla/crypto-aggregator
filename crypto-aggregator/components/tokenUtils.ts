@@ -1,5 +1,5 @@
 
-import type { Token } from "./Tokenoverviewcard";
+import type { Token } from "./single/Tokenoverviewcard";
 
 export function formatNumber(num: number): string {
   if (num === 0) return "0";

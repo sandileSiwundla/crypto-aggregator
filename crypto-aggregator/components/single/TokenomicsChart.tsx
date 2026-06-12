@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   TooltipProps,
 } from "recharts";
-import { isValidEthereumAddress, shortenAddress } from "./tokenUtils";
+import { isValidEthereumAddress, shortenAddress } from "../tokenUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { formatChange, getChangeClass } from "./tokenUtils";
+import { formatChange, getChangeClass } from "../tokenUtils";
 import type { Token } from "./Tokenoverviewcard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

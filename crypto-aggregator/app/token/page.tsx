@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import CryptoDetail, { CryptoDetailLoading, CryptoDetailError } from '@/components/CryptoDetail';
-import CryptoTable from '@/components/CryptoTable';
-import PriceChart from '@/components/PriceChart';
-import TokenomicsChart from '@/components/TokenomicsChart';
-import TokenAnalysis from '@/components/TokenAnalysis';
+import CryptoDetail, { CryptoDetailLoading, CryptoDetailError } from '@/components/single/CryptoDetail';
+import CryptoTable from '@/components/single/CryptoTable';
+import PriceChart from '@/components/single/PriceChart';
+import TokenAnalysis from '@/components/single/TokenAnalysis';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
@@ -186,8 +185,6 @@ export default function TokenPage() {
               days={30}  // Show last 30 days (can be 7, 14, 30, 90)
             />
 
-            {/* Tokenomics Chart - Interactive pie chart */}
-            <TokenomicsChart />
 
             {/* Top Cryptocurrencies Table */}
             {allCoins.length > 0 && (

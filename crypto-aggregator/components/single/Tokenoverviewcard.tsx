@@ -1,6 +1,6 @@
 
 import React from "react";
-import { formatNumber, formatChange, getChangeClass, calculateVolumeRatio, formatSupply } from "./tokenUtils";
+import { formatNumber, formatChange, getChangeClass, calculateVolumeRatio, formatSupply } from "../tokenUtils";
 
 export interface TokenQuote {
   price?: number;
