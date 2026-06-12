@@ -5,6 +5,7 @@ import CryptoDetail, { CryptoDetailLoading, CryptoDetailError } from '@/componen
 import CryptoTable from '@/components/CryptoTable';
 import PriceChart from '@/components/PriceChart';
 import TokenomicsChart from '@/components/TokenomicsChart';
+import TokenAnalysis from '@/components/TokenAnalysis';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
@@ -190,7 +191,8 @@ export default function TokenPage() {
         {/* Data Display */}
         {data?.coin && !loading && (
           <div className="space-y-6">
-
+            {/* Token Analysis - Overview, Supply Metrics, Performance */}
+            <TokenAnalysis token={data.coin} />
 
             {/* Crypto Detail - Description and links */}
             <CryptoDetail coin={data.coin} usdToZar={data.usdToZar || undefined} />
