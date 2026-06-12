@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+type CoinListing = {
+  id?: number;
+  name?: string;
+  symbol?: string;
+};
+
 const API_KEY = process.env.COINMARKETCAP_API_KEY || '953d5f26c7de4a708c07385c6bec69fa';
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
@@ -18,7 +24,7 @@ export async function GET(
     
     const listingsData = await listingsResponse.json();
     const crypto = listingsData.data?.find(
-      (coin: any) => 
+      (coin: CoinListing) => 
         coin.name?.toLowerCase() === cryptoName.toLowerCase() ||
         coin.symbol?.toLowerCase() === cryptoName.toLowerCase()
     );
@@ -39,10 +45,14 @@ export async function GET(
       coinName: crypto.name
     });
     
-  } catch (error: any) {
-    console.error('Historical API error:', error.message);
+  } catch (error: unknown) {
+    const message =
+      error && typeof error === 'object' && 'message' in error
+        ? String((error as { message?: unknown }).message)
+        : String(error);
+    console.error('Historical API error:', message);
     return NextResponse.json(
-      { quotes: [], error: error.message },
+      { quotes: [], error: message },
       { status: 500 }
     );
   }

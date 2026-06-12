@@ -14,7 +14,6 @@ export async function GET(
     
     console.log('Fetching crypto:', searchName);
 
-    // 1️⃣ Fetch all listings
     const listingsResponse = await fetch(
       `${BASE_URL}/cryptocurrency/listings/latest?limit=5000`,
       {
@@ -35,7 +34,7 @@ export async function GET(
 
     // Find the cryptocurrency
     const crypto = listingsData.data.find(
-      (coin: any) =>
+      (coin: { name?: string; symbol?: string; id: number }) =>
         coin.name?.toLowerCase() === searchName ||
         coin.symbol?.toLowerCase() === searchName
     );
@@ -87,12 +86,13 @@ export async function GET(
       usdToZar
     });
 
-  } catch (error: any) {
-    console.error('API Error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('API Error:', message);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch crypto data',
-        details: error.message 
+        details: message
       },
       { status: 500 }
     );

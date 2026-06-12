@@ -4,6 +4,41 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_KEY = process.env.COINMARKETCAP_API_KEY || '953d5f26c7de4a708c07385c6bec69fa';
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
+type CoinListing = {
+  id: number;
+  name: string;
+  symbol: string;
+  slug?: string;
+  quote: {
+    USD: {
+      price: number;
+      market_cap: number;
+      percent_change_24h: number;
+    };
+  };
+};
+
+type HistoricalQuote = {
+  time_open: string;
+  quote: {
+    USD: {
+      close: number;
+      volume: number;
+    };
+  };
+};
+
+type PricePoint = {
+  timestamp: string | number;
+  quote: {
+    USD: {
+      price: number;
+      volume?: number;
+      market_cap?: number;
+    };
+  };
+};
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { cryptoName: string } }
@@ -25,14 +60,14 @@ export async function GET(
       }
     );
     
-    const listingsData = await listingsResponse.json();
+    const listingsData = await listingsResponse.json() as { data?: CoinListing[] };
     
     if (!listingsData.data) {
       throw new Error('Failed to fetch cryptocurrency data');
     }
     
     const crypto = listingsData.data.find(
-      (coin: any) => 
+      (coin: CoinListing) => 
         coin.name?.toLowerCase() === cryptoName.toLowerCase() ||
         coin.symbol?.toLowerCase() === cryptoName.toLowerCase()
     );
@@ -70,7 +105,7 @@ export async function GET(
     
     if (historicalData.data?.quotes && historicalData.data.quotes.length > 0) {
       // Transform historical data to match PricePoint interface
-      quotes = historicalData.data.quotes.map((quote: any) => ({
+      quotes = historicalData.data.quotes.map((quote: HistoricalQuote) => ({
         timestamp: quote.time_open,
         quote: {
           USD: {
@@ -117,14 +152,15 @@ export async function GET(
       dataPoints: quotes.length
     });
     
-  } catch (error: any) {
-    console.error('Historical API error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Historical API error:', errorMessage);
     
     // Return empty quotes array on error
     return NextResponse.json(
       { 
         quotes: [], 
-        error: error.message,
+        error: errorMessage,
         usingMockData: true 
       },
       { status: 500 }
@@ -133,8 +169,8 @@ export async function GET(
 }
 
 // Generate realistic mock price data for fallback
-function generateMockPriceData(days: number, currentPrice: number): any[] {
-  const quotes = [];
+function generateMockPriceData(days: number, currentPrice: number): PricePoint[] {
+  const quotes: PricePoint[] = [];
   const now = Date.now();
   let price = currentPrice;
   

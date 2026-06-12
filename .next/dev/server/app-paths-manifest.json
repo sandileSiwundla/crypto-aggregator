@@ -1,0 +1,8 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/cryptocurrency/listings/latest/route": "app/api/cryptocurrency/listings/latest/route.js",
+  "/api/single/[cryptoName]/priceData/route": "app/api/single/[cryptoName]/priceData/route.js",
+  "/api/single/[cryptoName]/route": "app/api/single/[cryptoName]/route.js",
+  "/page": "app/page.js",
+  "/token/page": "app/token/page.js"
+}

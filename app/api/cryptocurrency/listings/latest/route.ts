@@ -28,10 +28,12 @@ export async function GET(request: NextRequest) {
       status: data.status
     });
     
-  } catch (error: any) {
-    console.error('Listings API error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    console.error('Listings API error:', message);
     return NextResponse.json(
-      { error: error.message, data: [] },
+      { error: message, data: [] },
       { status: 500 }
     );
   }
