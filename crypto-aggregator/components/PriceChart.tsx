@@ -1,7 +1,7 @@
+// app/components/PriceChart.tsx (updated version)
+'use client';
 
-"use client";
-
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -30,20 +30,6 @@ function buildChartData(quotes: PricePoint[]): ChartDataPoint[] {
   }));
 }
 
-function buildMockData(): ChartDataPoint[] {
-  let base = 100 + Math.random() * 100;
-  return Array.from({ length: 31 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (30 - i));
-    base = Math.max(50, base + (Math.random() - 0.5) * 20);
-    return {
-      date: date.toLocaleDateString("en-ZA", { month: "short", day: "numeric" }),
-      price: parseFloat(base.toFixed(4)),
-    };
-  });
-}
-
-// Custom tooltip card
 function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
   return (
@@ -57,36 +43,97 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
 }
 
 interface PriceChartProps {
-  quotes?: PricePoint[];
-  /** Symbol shown in the axis and heading */
+  cryptoName?: string;
   symbol?: string;
-  /** If true, uses randomly generated mock data */
-  mock?: boolean;
   height?: number;
+  days?: number;
 }
 
-export default function PriceChart({ quotes, symbol = "TOKEN", mock = false, height = 280 }: PriceChartProps) {
-  const data = useMemo(
-    () => (mock || !quotes?.length ? buildMockData() : buildChartData(quotes)),
-    [quotes, mock]
-  );
+export default function PriceChart({ cryptoName, symbol = "TOKEN", height = 280, days = 30 }: PriceChartProps) {
+  const [quotes, setQuotes] = useState<PricePoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
 
-  const minPrice = Math.min(...data.map((d) => d.price)) * 0.98;
-  const maxPrice = Math.max(...data.map((d) => d.price)) * 1.02;
+  useEffect(() => {
+    async function fetchPriceData() {
+      if (!cryptoName) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch(`/api/single/${cryptoName}/priceData?days=${days}`);
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        setQuotes(data.quotes || []);
+        setUsingMockData(data.usingMockData || false);
+        
+        if (data.quotes.length === 0) {
+          setError('No price data available');
+        }
+      } catch (err) {
+        console.error('Failed to fetch price data:', err);
+        setError('Failed to load price data');
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchPriceData();
+  }, [cryptoName, days]);
+
+  const chartData = useMemo(() => {
+    if (quotes.length === 0) return [];
+    return buildChartData(quotes);
+  }, [quotes]);
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl shadow-black/40 mb-5">
+        <div className="flex items-center justify-center h-[280px]">
+          <div className="text-slate-400">Loading chart data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || chartData.length === 0) {
+    return (
+      <div className="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl shadow-black/40 mb-5">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-white font-semibold text-base">{symbol} Price History</h4>
+        </div>
+        <div className="flex items-center justify-center h-[280px]">
+          <div className="text-amber-400 text-center">
+            <p>Unable to load price data</p>
+            <p className="text-sm text-slate-400 mt-2">{error || 'No data available'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const minPrice = Math.min(...chartData.map((d) => d.price)) * 0.98;
+  const maxPrice = Math.max(...chartData.map((d) => d.price)) * 1.02;
 
   return (
     <div className="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-xl shadow-black/40 mb-5">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-white font-semibold text-base">{symbol} Price History</h4>
-        {mock && (
+        <h4 className="text-white font-semibold text-base">{symbol} Price History (Last {days} days)</h4>
+        {usingMockData && (
           <span className="text-xs text-amber-400/80 border border-amber-400/20 px-2 py-0.5 rounded-full">
-            Sample data
+            Estimated Data
           </span>
         )}
       </div>
 
       <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={data} margin={{ top: 4, right: 8, left: 4, bottom: 0 }}>
+        <AreaChart data={chartData} margin={{ top: 4, right: 8, left: 4, bottom: 0 }}>
           <defs>
             <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />

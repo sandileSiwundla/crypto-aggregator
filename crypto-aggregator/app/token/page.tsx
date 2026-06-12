@@ -9,7 +9,6 @@ import TokenAnalysis from '@/components/TokenAnalysis';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-// Type definitions
 interface TokenQuote {
   price: number;
   percent_change_1h?: number;
@@ -45,35 +44,21 @@ interface ApiResponse {
   usdToZar: number | null;
 }
 
-interface PricePoint {
-  timestamp: string;
-  quote?: { USD?: { price?: number } };
-}
-
 export default function TokenPage() {
   const [cryptoName, setCryptoName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiResponse | null>(null);
-  const [historicalData, setHistoricalData] = useState<PricePoint[] | null>(null);
   const [allCoins, setAllCoins] = useState<Token[]>([]);
+  
+  // Remove historicalData state since PriceChart will handle its own data fetching
+  // const [historicalData, setHistoricalData] = useState<PricePoint[] | null>(null);
 
   const fetchTokenData = useCallback(async (name: string) => {
     const res = await fetch(`/api/single/${encodeURIComponent(name)}`);
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to fetch data');
     return result;
-  }, []);
-
-  const fetchHistoricalData = useCallback(async (name: string) => {
-    try {
-      const res = await fetch(`/api/single/${encodeURIComponent(name)}/historical`);
-      if (!res.ok) return null;
-      const result = await res.json();
-      return result.quotes?.length ? result.quotes : null;
-    } catch {
-      return null;
-    }
   }, []);
 
   const fetchTopCoins = useCallback(async () => {
@@ -95,22 +80,19 @@ export default function TokenPage() {
     setError(null);
 
     try {
-      // Fetch all data in parallel
-      const [tokenData, historical, topCoins] = await Promise.all([
+      // Only fetch token data and top coins, PriceChart will fetch its own historical data
+      const [tokenData, topCoins] = await Promise.all([
         fetchTokenData(cryptoName),
-        fetchHistoricalData(cryptoName),
         fetchTopCoins()
       ]);
 
       setData(tokenData);
-      setHistoricalData(historical);
       setAllCoins(topCoins);
       
     } catch (err: any) {
       console.error('Fetch error:', err);
       setError(err.message || 'Failed to fetch cryptocurrency data');
       setData(null);
-      setHistoricalData(null);
     } finally {
       setLoading(false);
     }
@@ -129,7 +111,6 @@ export default function TokenPage() {
     setError(null);
     setCryptoName('');
     setData(null);
-    setHistoricalData(null);
     setAllCoins([]);
   }, []);
 
@@ -197,12 +178,12 @@ export default function TokenPage() {
             {/* Crypto Detail - Description and links */}
             <CryptoDetail coin={data.coin} usdToZar={data.usdToZar || undefined} />
 
-            {/* Price Chart */}
+            {/* Price Chart - Now handles its own data fetching */}
             <PriceChart 
-              quotes={historicalData || undefined}
-              symbol={data.coin.symbol}
-              mock={!historicalData}
-              height={320}
+              cryptoName={cryptoName}  // Pass the crypto name for API calls
+              symbol={data.coin.symbol}  // Display symbol
+              height={320}  // Chart height in pixels
+              days={30}  // Show last 30 days (can be 7, 14, 30, 90)
             />
 
             {/* Tokenomics Chart - Interactive pie chart */}
