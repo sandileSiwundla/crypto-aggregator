@@ -1,28 +1,28 @@
 {
   "name": "crypto-aggregator",
-  "version": "1.0.0",
-  "main": "api/app.js",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "node api/app.js",
-    "dev": "node api/app.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/material": "^7.3.5",
-    "@mui/x-charts": "^8.20.0",
-    "axios": "^1.6.0",
-    "chart.js": "^4.5.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "html2canvas": "^1.4.1",
-    "react": "^19.2.0",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.0",
+    "html-to-image": "^1.11.13",
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "recharts": "^3.8.1"
   },
-  "engines": {
-    "node": ">=18.x"
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

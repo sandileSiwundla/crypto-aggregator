@@ -1,53 +1,82 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const API_KEY = process.env.COINMARKETCAP_API_KEY || '953d5f26c7de4a708c07385c6bec69fa';
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
-async function getUSDToZARRate() {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { cryptoName: string } }
+) {
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=ZAR');
-    const data = await res.json();
-    return data?.rates?.ZAR ?? null;
-  } catch (err) {
-    console.error('Error fetching ZAR rate:', err.message);
-    return null;
-  }
-}
+    // Await params in Next.js 15+
+    const { cryptoName } = await params;
+    const searchName = cryptoName.toLowerCase();
+    
+    console.log('Fetching crypto:', searchName);
 
-export async function GET(request, { params }) {
-  try {
-    const cryptoName = (await params).cryptoName.toLowerCase();
-
-    // Fetch listings
-    const listingsRes = await fetch(
+    // 1️⃣ Fetch all listings
+    const listingsResponse = await fetch(
       `${BASE_URL}/cryptocurrency/listings/latest?limit=5000`,
-      { headers: { 'X-CMC_PRO_API_KEY': API_KEY } }
+      {
+        headers: { 'X-CMC_PRO_API_KEY': API_KEY },
+        next: { revalidate: 60 } // Cache for 60 seconds
+      }
     );
-    const listingsData = await listingsRes.json();
 
+    if (!listingsResponse.ok) {
+      throw new Error(`Listings API failed: ${listingsResponse.status}`);
+    }
+
+    const listingsData = await listingsResponse.json();
+    
+    if (!listingsData?.data) {
+      throw new Error('No data from CoinMarketCap');
+    }
+
+    // Find the cryptocurrency
     const crypto = listingsData.data.find(
-      coin => coin.name.toLowerCase() === cryptoName || 
-              coin.symbol.toLowerCase() === cryptoName
+      (coin: any) =>
+        coin.name?.toLowerCase() === searchName ||
+        coin.symbol?.toLowerCase() === searchName
     );
 
     if (!crypto) {
-      return NextResponse.json({ error: 'Cryptocurrency not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: `Cryptocurrency "${cryptoName}" not found` },
+        { status: 404 }
+      );
     }
 
-    // Fetch quote and info in parallel
-    const [quoteRes, infoRes, usdToZar] = await Promise.all([
-      fetch(`${BASE_URL}/cryptocurrency/quotes/latest?id=${crypto.id}&convert=USD`, {
-        headers: { 'X-CMC_PRO_API_KEY': API_KEY }
-      }),
-      fetch(`${BASE_URL}/cryptocurrency/info?id=${crypto.id}`, {
-        headers: { 'X-CMC_PRO_API_KEY': API_KEY }
-      }),
-      getUSDToZARRate()
+    // 2️⃣ Fetch quote and info in parallel
+    const [quoteRes, infoRes] = await Promise.all([
+      fetch(
+        `${BASE_URL}/cryptocurrency/quotes/latest?id=${crypto.id}&convert=USD`,
+        { headers: { 'X-CMC_PRO_API_KEY': API_KEY } }
+      ),
+      fetch(
+        `${BASE_URL}/cryptocurrency/info?id=${crypto.id}`,
+        { headers: { 'X-CMC_PRO_API_KEY': API_KEY } }
+      )
     ]);
+
+    if (!quoteRes.ok || !infoRes.ok) {
+      throw new Error('Failed to fetch quote or info');
+    }
 
     const quoteData = await quoteRes.json();
     const infoData = await infoRes.json();
 
+    // 3️⃣ Fetch ZAR exchange rate
+    let usdToZar = null;
+    try {
+      const zarRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=ZAR');
+      const zarData = await zarRes.json();
+      usdToZar = zarData?.rates?.ZAR ?? null;
+    } catch (err) {
+      console.warn('Could not fetch ZAR rate:', err);
+    }
+
+    // Combine the data
     const coinData = {
       ...quoteData.data[crypto.id],
       ...infoData.data[crypto.id]
@@ -57,10 +86,14 @@ export async function GET(request, { params }) {
       coin: coinData,
       usdToZar
     });
-  } catch (err) {
-    console.error('Error fetching crypto data:', err.message);
+
+  } catch (error: any) {
+    console.error('API Error:', error.message);
     return NextResponse.json(
-      { error: 'Failed to fetch crypto data', details: err.message },
+      { 
+        error: 'Failed to fetch crypto data',
+        details: error.message 
+      },
       { status: 500 }
     );
   }
