@@ -56,8 +56,6 @@ export default function TokenPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [allCoins, setAllCoins] = useState<Token[]>([]);
   
-  // Remove historicalData state since PriceChart will handle its own data fetching
-  // const [historicalData, setHistoricalData] = useState<PricePoint[] | null>(null);
 
   const fetchTokenData = useCallback(async (name: string) => {
     const res = await fetch(`/api/single/${encodeURIComponent(name)}`);
@@ -104,7 +102,7 @@ export default function TokenPage() {
     }
   };
 
-  const handleRowClick = useCallback((token: Token) => {
+  const handleRowClick = useCallback((token: { name: string }) => {
     setCryptoName(token.name);
     // Use setTimeout to ensure state is updated before submitting
     setTimeout(() => {

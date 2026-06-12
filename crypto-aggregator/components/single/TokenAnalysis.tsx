@@ -223,12 +223,17 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
   );
 
   // Custom tooltip for performance bar chart
-  const PerformanceTooltip = ({ active, payload }: any) => {
+  interface TooltipPayloadItem {
+    value?: number;
+    payload?: { period?: string; label?: string };
+  }
+
+  const PerformanceTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) => {
     if (!active || !payload?.length) return null;
-    const val: number = payload[0].value;
+    const val: number = payload[0].value ?? 0;
     return (
       <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-        <p className="text-slate-400">{payload[0].payload.period}</p>
+        <p className="text-slate-400">{payload[0].payload?.period ?? 'N/A'}</p>
         <p className={`font-semibold ${val >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
           {formatChange(val)}
         </p>
@@ -237,12 +242,12 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
   };
 
   // Custom tooltip for market data bar chart
-  const MarketTooltip = ({ active, payload }: any) => {
+  const MarketTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) => {
     if (!active || !payload?.length) return null;
     return (
       <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-        <p className="text-slate-400">{payload[0].payload.label}</p>
-        <p className="text-white font-semibold">${formatNumber(payload[0].value)}</p>
+        <p className="text-slate-400">{payload[0].payload?.label ?? 'N/A'}</p>
+        <p className="text-white font-semibold">${formatNumber(payload[0].value ?? 0)}</p>
       </div>
     );
   };

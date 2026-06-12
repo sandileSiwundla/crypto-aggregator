@@ -30,7 +30,12 @@ function buildChartData(quotes: PricePoint[]): ChartDataPoint[] {
   }));
 }
 
-function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  payload?: Array<{ value?: number }>;
+  label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-blue-700/40 bg-slate-900/95 px-4 py-3 shadow-2xl text-sm">
