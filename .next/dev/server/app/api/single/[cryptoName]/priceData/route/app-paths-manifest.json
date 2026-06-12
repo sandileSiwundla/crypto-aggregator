@@ -1,3 +1,0 @@
-{
-  "/api/single/[cryptoName]/priceData/route": "app/api/single/[cryptoName]/priceData/route.js"
-}
