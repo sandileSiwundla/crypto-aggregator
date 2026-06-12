@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Crypto Aggregator - AssetView
 
-## Getting Started
+A professional, academic-grade cryptocurrency research and analysis platform built with Next.js 15, TypeScript, and Tailwind CSS. Provides real-time crypto data, advanced analytics, and side-by-side token comparison tools.
 
-First, run the development server:
+## Features
+
+### Token Analysis
+- Real-time price data from CoinMarketCap API
+- Comprehensive token metrics (Market Cap, Volume, Supply)
+- Interactive price charts with historical data
+- Performance tracking (1h, 24h, 7d, 30d changes)
+- Tokenomics visualization with pie charts
+- Supply metrics with circulation percentage
+
+### Token Comparison
+- Side-by-side comparison of any two cryptocurrencies
+- Interactive comparison charts with dual-line visualization
+- Toggle between price and percentage change views
+- Configurable time ranges (7D, 14D, 30D, 90D)
+- Detailed comparison tables with advantage highlighting
+- Visual winner/loser indicators
+
+### Market Data
+- Top 100 cryptocurrencies ranking
+- Sortable columns (Rank, Price, Market Cap, Volume, Change%)
+- ZAR currency conversion for South African users
+- Responsive tables with smooth interactions
+
+### Search & Discovery
+- Autocomplete search with suggestions
+- Instant token lookup by name or symbol
+- Quick navigation between tokens
+- Smart fallback to CoinGecko API when needed
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **API**: CoinMarketCap API, CoinGecko API (fallback)
+- **Deployment**: Vercel
+
+## Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/sandileSiwundla/crypto-aggregator.git
+
+# Navigate to project directory
+cd crypto-aggregator
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Add your CoinMarketCap API key to .env.local
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
