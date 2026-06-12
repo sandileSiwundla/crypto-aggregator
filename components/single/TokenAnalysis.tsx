@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, RefObject } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -44,12 +44,204 @@ interface TokenAnalysisProps {
   token: Token;
 }
 
+interface TooltipPayloadItem {
+  value?: number;
+  payload?: { period?: string; label?: string };
+}
+
+interface MetricRowProps {
+  label: string;
+  value: string;
+  change?: number;
+}
+
+interface CardHeaderProps {
+  title: string;
+  downloadKey: string;
+  token: Token;
+  downloading: string | null;
+  onDownload: (ref: RefObject<HTMLDivElement | null>, key: string) => void;
+  cardRef: RefObject<HTMLDivElement | null>;
+}
+
+interface BrandingProps {
+  logo?: string;
+}
+
 const ABC_BRANDING = {
   name: 'ABC Africa Blockchain Club',
   logo: '/ABC.png',
 };
 
 const PALETTE = ['#3b82f6', '#8b5cf6', '#10b981'];
+
+const MetricRow: React.FC<MetricRowProps> = ({ label, value, change }) => {
+  const formatChange = (change?: number): string => {
+    if (change === undefined || change === null) return 'N/A';
+    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+  };
+
+  const changeColor = (change?: number) =>
+    change === undefined || change === null
+      ? 'text-slate-400'
+      : change >= 0
+      ? 'text-emerald-400'
+      : 'text-red-400';
+
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-slate-700/50 last:border-0">
+      <span className="text-slate-400 text-sm">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-white text-sm font-semibold">{value}</span>
+        {change !== undefined && change !== null && (
+          <span
+            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${changeColor(change)} ${
+              change >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
+            }`}
+          >
+            {formatChange(change)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CardHeader: React.FC<CardHeaderProps> = ({
+  title,
+  downloadKey,
+  token,
+  downloading,
+  onDownload,
+  cardRef,
+}) => {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        {token.logo ? (
+          <img src={token.logo} alt={token.name} className="w-9 h-9 rounded-lg object-cover" />
+        ) : (
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600" />
+        )}
+        <div>
+          <p className="text-white font-semibold leading-tight">{title}</p>
+          <p className="text-slate-500 text-xs">
+            {token.name} · {token.symbol}
+          </p>
+        </div>
+      </div>
+      <button
+        onClick={() => onDownload(cardRef, downloadKey)}
+        disabled={!!downloading}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium transition-colors"
+      >
+        {downloading === downloadKey ? (
+          <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-300 rounded-full animate-spin inline-block" />
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+        )}
+        Export
+      </button>
+    </div>
+  );
+};
+
+const Branding: React.FC<BrandingProps> = ({ logo = ABC_BRANDING.logo }) => (
+  <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-700/40">
+    <img
+      src={logo}
+      alt="ABC"
+      className="h-5 w-auto opacity-60"
+      onError={(e) => (e.currentTarget.style.display = 'none')}
+    />
+    <span className="text-slate-500 text-xs">ABC Africa Blockchain Club</span>
+  </div>
+);
+
+// Moved to module scope so it can be used by SupplyTooltip without being declared inside render
+const formatSupply = (supply: number): string => {
+  if (supply >= 1e12) return (supply / 1e12).toFixed(2) + 'T';
+  if (supply >= 1e9) return (supply / 1e9).toFixed(2) + 'B';
+  if (supply >= 1e6) return (supply / 1e6).toFixed(2) + 'M';
+  if (supply >= 1e3) return (supply / 1e3).toFixed(2) + 'K';
+  return supply.toLocaleString();
+};
+
+// ✅ Declared at module scope — not inside render — so React never recreates it
+const SupplyTooltip: React.FC<{
+  active?: boolean;
+  payload?: Array<{ value?: number; name?: string }>;
+}> = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const val = payload[0].value;
+  const name = payload[0].name;
+  return (
+    <div
+      style={{
+        background: '#1e293b',
+        border: '1px solid #334155',
+        borderRadius: '8px',
+        padding: '6px 10px',
+        fontSize: '12px',
+      }}
+    >
+      <p style={{ color: '#94a3b8', marginBottom: 2 }}>{name}</p>
+      <p style={{ color: '#fff', fontWeight: 600 }}>
+        {val !== undefined ? formatSupply(val) : 'N/A'}
+      </p>
+    </div>
+  );
+};
+
+const PerformanceTooltip: React.FC<{ active?: boolean; payload?: TooltipPayloadItem[] }> = ({
+  active,
+  payload,
+}) => {
+  const formatChange = (change?: number): string => {
+    if (change === undefined || change === null) return 'N/A';
+    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+  };
+
+  if (!active || !payload?.length) return null;
+  const val: number = payload[0].value ?? 0;
+  return (
+    <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
+      <p className="text-slate-400">{payload[0].payload?.period ?? 'N/A'}</p>
+      <p className={`font-semibold ${val >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        {formatChange(val)}
+      </p>
+    </div>
+  );
+};
+
+const MarketTooltip: React.FC<{ active?: boolean; payload?: TooltipPayloadItem[] }> = ({
+  active,
+  payload,
+}) => {
+  const formatNumber = (num: number): string => {
+    if (num === 0) return '0';
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  };
+
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
+      <p className="text-slate-400">{payload[0].payload?.label ?? 'N/A'}</p>
+      <p className="text-white font-semibold">${formatNumber(payload[0].value ?? 0)}</p>
+    </div>
+  );
+};
 
 export default function TokenAnalysis({ token }: TokenAnalysisProps) {
   const overviewRef = useRef<HTMLDivElement>(null);
@@ -85,7 +277,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
     { period: '30d', change: usd?.percent_change_30d ?? 0 },
   ];
 
-  // Market cap vs volume comparison data
   const marketData = [
     { label: 'Market Cap', value: marketCap },
     { label: 'Fully Diluted', value: fullyDilutedMCap },
@@ -99,14 +290,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-  };
-
-  const formatSupply = (supply: number): string => {
-    if (supply >= 1e12) return (supply / 1e12).toFixed(2) + 'T';
-    if (supply >= 1e9) return (supply / 1e9).toFixed(2) + 'B';
-    if (supply >= 1e6) return (supply / 1e6).toFixed(2) + 'M';
-    if (supply >= 1e3) return (supply / 1e3).toFixed(2) + 'K';
-    return supply.toLocaleString();
   };
 
   const formatChange = (change?: number): string => {
@@ -126,7 +309,10 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
       ? ((token.circulating_supply / token.max_supply) * 100).toFixed(1)
       : null;
 
-  const downloadAsImage = async (ref: React.RefObject<HTMLDivElement>, filename: string) => {
+  const downloadAsImage = async (
+    ref: React.RefObject<HTMLDivElement | null>,
+    filename: string
+  ) => {
     if (!ref.current || downloading) return;
     setDownloading(filename);
     try {
@@ -146,122 +332,19 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
     }
   };
 
-  const MetricRow = ({
-    label,
-    value,
-    change,
-  }: {
-    label: string;
-    value: string;
-    change?: number;
-  }) => (
-    <div className="flex items-center justify-between py-2.5 border-b border-slate-700/50 last:border-0">
-      <span className="text-slate-400 text-sm">{label}</span>
-      <div className="flex items-center gap-2">
-        <span className="text-white text-sm font-semibold">{value}</span>
-        {change !== undefined && change !== null && (
-          <span
-            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${changeColor(change)} ${
-              change >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
-            }`}
-          >
-            {formatChange(change)}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  const CardHeader = ({
-    title,
-    downloadKey,
-    ref: cardRef,
-  }: {
-    title: string;
-    downloadKey: string;
-    ref: React.RefObject<HTMLDivElement>;
-  }) => (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center gap-3">
-        {token.logo ? (
-          <img src={token.logo} alt={token.name} className="w-9 h-9 rounded-lg object-cover" />
-        ) : (
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600" />
-        )}
-        <div>
-          <p className="text-white font-semibold leading-tight">{title}</p>
-          <p className="text-slate-500 text-xs">{token.name} · {token.symbol}</p>
-        </div>
-      </div>
-      <button
-        onClick={() => downloadAsImage(cardRef, downloadKey)}
-        disabled={!!downloading}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium transition-colors"
-      >
-        {downloading === downloadKey ? (
-          <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-300 rounded-full animate-spin inline-block" />
-        ) : (
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        )}
-        Export
-      </button>
-    </div>
-  );
-
-  const Branding = () => (
-    <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-700/40">
-      <img
-        src={ABC_BRANDING.logo}
-        alt="ABC"
-        className="h-5 w-auto opacity-60"
-        onError={(e) => (e.currentTarget.style.display = 'none')}
-      />
-      <span className="text-slate-500 text-xs">ABC Africa Blockchain Club</span>
-    </div>
-  );
-
-  // Custom tooltip for performance bar chart
-  interface TooltipPayloadItem {
-    value?: number;
-    payload?: { period?: string; label?: string };
-  }
-
-  const PerformanceTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) => {
-    if (!active || !payload?.length) return null;
-    const val: number = payload[0].value ?? 0;
-    return (
-      <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-        <p className="text-slate-400">{payload[0].payload?.period ?? 'N/A'}</p>
-        <p className={`font-semibold ${val >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-          {formatChange(val)}
-        </p>
-      </div>
-    );
-  };
-
-  // Custom tooltip for market data bar chart
-  const MarketTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) => {
-    if (!active || !payload?.length) return null;
-    return (
-      <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-        <p className="text-slate-400">{payload[0].payload?.label ?? 'N/A'}</p>
-        <p className="text-white font-semibold">${formatNumber(payload[0].value ?? 0)}</p>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-5">
-      {/* ── Token Overview ───────────────────────────────────────── */}
-      <div
-        ref={overviewRef}
-        className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
-      >
-        <CardHeader title="Token Overview" downloadKey="overview" cardRef={overviewRef} />
+      {/* Token Overview */}
+      <div ref={overviewRef} className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5">
+        <CardHeader
+          title="Token Overview"
+          downloadKey="overview"
+          token={token}
+          downloading={downloading}
+          onDownload={downloadAsImage}
+          cardRef={overviewRef}
+        />
 
-        {/* Price hero */}
         <div className="flex items-end gap-3 mb-5">
           {token.logo ? (
             <img src={token.logo} alt={token.name} className="w-12 h-12 rounded-xl object-cover" />
@@ -285,7 +368,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Left: metrics */}
           <div>
             <MetricRow label="Market Cap" value={`$${formatNumber(marketCap)}`} />
             <MetricRow label="Fully Diluted MCap" value={`$${formatNumber(fullyDilutedMCap)}`} />
@@ -294,7 +376,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
             <MetricRow label="Platform" value={token.platform?.name || 'Native'} />
           </div>
 
-          {/* Right: market cap vs volume bar chart */}
           <div>
             <p className="text-slate-500 text-xs mb-2">Market size comparison</p>
             <ResponsiveContainer width="100%" height={160}>
@@ -327,12 +408,16 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         <Branding />
       </div>
 
-      {/* ── Supply Metrics ───────────────────────────────────────── */}
-      <div
-        ref={supplyRef}
-        className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
-      >
-        <CardHeader title="Supply Metrics" downloadKey="supply" cardRef={supplyRef} />
+      {/* Supply Metrics */}
+      <div ref={supplyRef} className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5">
+        <CardHeader
+          title="Supply Metrics"
+          downloadKey="supply"
+          token={token}
+          downloading={downloading}
+          onDownload={downloadAsImage}
+          cardRef={supplyRef}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
@@ -340,10 +425,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
               label="Circulating Supply"
               value={formatSupply(token.circulating_supply || 0)}
             />
-            <MetricRow
-              label="Total Supply"
-              value={formatSupply(token.total_supply || 0)}
-            />
+            <MetricRow label="Total Supply" value={formatSupply(token.total_supply || 0)} />
             <MetricRow
               label="Max Supply"
               value={token.max_supply ? formatSupply(token.max_supply) : '∞ Unlimited'}
@@ -352,7 +434,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
               <MetricRow label="% Circulating" value={`${circulatingPct}%`} />
             )}
 
-            {/* Progress bar for circulating % */}
             {circulatingPct && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-slate-500 mb-1">
@@ -369,7 +450,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
             )}
           </div>
 
-          {/* Donut chart with custom legend */}
+          {/* Donut chart with custom tooltip component — no formatter prop needed */}
           <div className="flex flex-col items-center">
             {supplyData.length > 0 ? (
               <>
@@ -389,20 +470,15 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
                         <Cell key={index} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      formatter={(v: number) => formatSupply(v)}
-                      contentStyle={{
-                        background: '#1e293b',
-                        border: '1px solid #334155',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                      labelStyle={{ color: '#94a3b8' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
+                    {/*
+                      ✅ FIX APPLIED HERE:
+                      Replaced `formatter` prop (broken due to recharts' wide ValueType)
+                      with a fully custom `content` component (`SupplyTooltip`).
+                      This sidesteps the type mismatch entirely and gives richer control.
+                    */}
+                    <Tooltip content={<SupplyTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
-                {/* Custom legend — avoids label overlap */}
                 <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-1">
                   {supplyData.map((entry) => {
                     const total = supplyData.reduce((s, d) => s + d.value, 0);
@@ -431,12 +507,19 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         <Branding />
       </div>
 
-      {/* ── Performance Metrics ──────────────────────────────────── */}
+      {/* Performance Metrics */}
       <div
         ref={performanceRef}
         className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
       >
-        <CardHeader title="Performance Metrics" downloadKey="performance" cardRef={performanceRef} />
+        <CardHeader
+          title="Performance Metrics"
+          downloadKey="performance"
+          token={token}
+          downloading={downloading}
+          onDownload={downloadAsImage}
+          cardRef={performanceRef}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
@@ -462,7 +545,6 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
             />
           </div>
 
-          {/* Vertical bar chart — positive green, negative red */}
           <div>
             <p className="text-slate-500 text-xs mb-2">Price change by period</p>
             <ResponsiveContainer width="100%" height={160}>

@@ -39,7 +39,11 @@ async function fetchBalance(_address: string): Promise<number> {
 
 // ─── Custom tooltip ───────────────────────────────────────────────────────────
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+// TooltipProps typing from recharts may not include the runtime `payload` shape used here,
+// augment the recharts TooltipProps with a precise payload shape so we avoid `any`.
+function CustomTooltip(
+  { active, payload }: TooltipProps<number, string> & { payload?: Array<{ payload: Category }> }
+) {
   if (!active || !payload?.length) return null;
   const cat: Category = payload[0].payload;
   return (
