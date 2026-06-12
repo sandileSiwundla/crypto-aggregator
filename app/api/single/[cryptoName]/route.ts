@@ -1,99 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface CoinQuoteUSD {
+  price: number;
+  percent_change_1h?: number;
+  percent_change_24h?: number;
+  percent_change_7d?: number;
+  percent_change_30d?: number;
+  market_cap: number;
+  fully_diluted_market_cap?: number;
+  volume_24h: number;
+}
+
+interface Coin {
+  id: number;
+  name: string;
+  symbol: string;
+  cmc_rank: number;
+  circulating_supply: number;
+  total_supply: number;
+  max_supply: number | null;
+  platform: {
+    name: string;
+  } | null;
+  quote: {
+    USD: CoinQuoteUSD;
+  };
+}
+
+interface CoinMarketCapResponse {
+  data?: Record<string, Coin>;
+  status?: {
+    error_code?: number;
+    error_message?: string;
+  };
+}
+
+interface ExchangeRateResponse {
+  rates: {
+    ZAR: number;
+  };
+}
+
 const API_KEY = process.env.COINMARKETCAP_API_KEY || '953d5f26c7de4a708c07385c6bec69fa';
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cryptoName: string } }
+  { params }: { params: Promise<{ cryptoName: string }> }
 ) {
   try {
-    // Await params in Next.js 15+
     const { cryptoName } = await params;
-    const searchName = cryptoName.toLowerCase();
     
-    console.log('Fetching crypto:', searchName);
-
-    const listingsResponse = await fetch(
-      `${BASE_URL}/cryptocurrency/listings/latest?limit=5000`,
+    const response = await fetch(
+      `${BASE_URL}/cryptocurrency/quotes/latest?slug=${cryptoName.toLowerCase()}`,
       {
-        headers: { 'X-CMC_PRO_API_KEY': API_KEY },
-        next: { revalidate: 60 } // Cache for 60 seconds
+        headers: {
+          'X-CMC_PRO_API_KEY': API_KEY,
+        },
+        next: { revalidate: 60 },
       }
     );
-
-    if (!listingsResponse.ok) {
-      throw new Error(`Listings API failed: ${listingsResponse.status}`);
-    }
-
-    const listingsData = await listingsResponse.json();
     
-    if (!listingsData?.data) {
-      throw new Error('No data from CoinMarketCap');
-    }
-
-    // Find the cryptocurrency
-    const crypto = listingsData.data.find(
-      (coin: { name?: string; symbol?: string; id: number }) =>
-        coin.name?.toLowerCase() === searchName ||
-        coin.symbol?.toLowerCase() === searchName
-    );
-
-    if (!crypto) {
+    const data: CoinMarketCapResponse = await response.json();
+    
+    if (!data.data) {
       return NextResponse.json(
-        { error: `Cryptocurrency "${cryptoName}" not found` },
+        { error: 'Cryptocurrency not found' },
         { status: 404 }
       );
     }
-
-    // 2️⃣ Fetch quote and info in parallel
-    const [quoteRes, infoRes] = await Promise.all([
-      fetch(
-        `${BASE_URL}/cryptocurrency/quotes/latest?id=${crypto.id}&convert=USD`,
-        { headers: { 'X-CMC_PRO_API_KEY': API_KEY } }
-      ),
-      fetch(
-        `${BASE_URL}/cryptocurrency/info?id=${crypto.id}`,
-        { headers: { 'X-CMC_PRO_API_KEY': API_KEY } }
-      )
-    ]);
-
-    if (!quoteRes.ok || !infoRes.ok) {
-      throw new Error('Failed to fetch quote or info');
-    }
-
-    const quoteData = await quoteRes.json();
-    const infoData = await infoRes.json();
-
-    // 3️⃣ Fetch ZAR exchange rate
-    let usdToZar = null;
+    
+    const coinId = Object.keys(data.data)[0];
+    const coin = data.data[coinId];
+    
+    let usdToZar: number | null = null;
     try {
-      const zarRes = await fetch('https://api.frankfurter.app/latest?from=USD&to=ZAR');
-      const zarData = await zarRes.json();
-      usdToZar = zarData?.rates?.ZAR ?? null;
-    } catch (err) {
-      console.warn('Could not fetch ZAR rate:', err);
+      const zarResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const zarData: ExchangeRateResponse = await zarResponse.json();
+      usdToZar = zarData.rates.ZAR;
+    } catch (error) {
+      console.error('Failed to fetch ZAR rate:', error);
     }
-
-    // Combine the data
-    const coinData = {
-      ...quoteData.data[crypto.id],
-      ...infoData.data[crypto.id]
-    };
-
+    
     return NextResponse.json({
-      coin: coinData,
-      usdToZar
-    });
-
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('API Error:', message);
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch crypto data',
-        details: message
+      coin: {
+        id: coin.id,
+        name: coin.name,
+        symbol: coin.symbol,
+        logo: `https://s2.coinmarketcap.com/static/img/coins/64x64/${coin.id}.png`,
+        cmc_rank: coin.cmc_rank,
+        circulating_supply: coin.circulating_supply,
+        total_supply: coin.total_supply,
+        max_supply: coin.max_supply,
+        platform: coin.platform,
+        quote: coin.quote,
       },
+      usdToZar,
+    });
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch cryptocurrency data';
+    console.error('API error:', errorMessage);
+    return NextResponse.json(
+      { error: errorMessage },
       { status: 500 }
     );
   }
