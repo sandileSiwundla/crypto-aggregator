@@ -259,7 +259,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         ref={overviewRef}
         className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
       >
-        <CardHeader title="Token Overview" downloadKey="overview" ref={overviewRef} />
+        <CardHeader title="Token Overview" downloadKey="overview" cardRef={overviewRef} />
 
         {/* Price hero */}
         <div className="flex items-end gap-3 mb-5">
@@ -332,7 +332,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         ref={supplyRef}
         className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
       >
-        <CardHeader title="Supply Metrics" downloadKey="supply" ref={supplyRef} />
+        <CardHeader title="Supply Metrics" downloadKey="supply" cardRef={supplyRef} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
@@ -436,7 +436,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
         ref={performanceRef}
         className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
       >
-        <CardHeader title="Performance Metrics" downloadKey="performance" ref={performanceRef} />
+        <CardHeader title="Performance Metrics" downloadKey="performance" cardRef={performanceRef} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
