@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from 'react';
 import CompareForm from '@/components/compare/CompareForm';
-import CompareChart from '@/components/CompareChart';
-import CompareTable from '@/components/CompareTable';
-import TokenComparisonCards from '@/components/TokenComparisonCards';
+import CompareChart from '@/components/compare/CompareChart';
+import CompareTable from '@/components/compare/CompareTable';
+import TokenComparisonCards from '@/components/compare/TokenComparisonCards';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
