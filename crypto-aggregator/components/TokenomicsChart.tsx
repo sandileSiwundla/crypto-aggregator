@@ -1,5 +1,3 @@
-// TokenomicsChart.tsx
-// Interactive token distribution pie chart with wallet address input.
 
 "use client";
 
