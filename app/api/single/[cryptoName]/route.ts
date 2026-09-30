@@ -54,6 +54,14 @@ interface MapEntry {
   rank: number | null;
 }
 
+interface Alternative {
+  id: number;
+  name: string;
+  symbol: string;
+  slug: string;
+  cmc_rank: number | null;
+}
+
 interface CmcEnvelope<T> {
   data?: T;
   status?: { error_code?: number; error_message?: string | null };
@@ -75,10 +83,10 @@ class CmcError extends Error {
   }
 }
 
-async function cmc<T>(path: string, revalidate: number): Promise<T> {
+async function cmc<T>(path: string, revalidate: number | false): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { 'X-CMC_PRO_API_KEY': API_KEY as string, Accept: 'application/json' },
-    next: { revalidate },
+    ...(revalidate === false ? { cache: 'no-store' as const } : { next: { revalidate } }),
   });
   const json: CmcEnvelope<T> = await res.json();
   const code = json.status?.error_code ?? 0;
@@ -91,45 +99,71 @@ async function cmc<T>(path: string, revalidate: number): Promise<T> {
 const slugify = (s: string) =>
   s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-/**
- * Decide how to look the coin up.
- *  - digits                      -> CMC id
- *  - has spaces (a name)         -> resolve via cached /map list, else slug guess
- *  - short, no hyphen            -> symbol
- *  - anything else               -> slug
- * `?by=id|symbol|slug` overrides the guess.
+const rankOf = (r: number | null | undefined) => r ?? 1e9;
+
+/* ---------- ranked coin list, cached in memory ----------
+ * The full /map list is bigger than Next's 2 MB fetch-cache limit, so it is
+ * cached in module memory instead (refreshed every 24h).
  */
-async function resolveLookup(raw: string, forced: string | null): Promise<Lookup> {
-  const input = raw.trim();
+const MAP_TTL_MS = 24 * 60 * 60 * 1000;
+let mapCache: { at: number; list: MapEntry[] } | null = null;
 
-  if (forced === 'id' || forced === 'symbol' || forced === 'slug') {
-    return { param: forced, value: forced === 'symbol' ? input.toUpperCase() : input.toLowerCase() };
-  }
-  if (/^\d+$/.test(input)) return { param: 'id', value: input };
+async function getMap(): Promise<MapEntry[]> {
+  if (mapCache && Date.now() - mapCache.at < MAP_TTL_MS) return mapCache.list;
+  const list = await cmc<MapEntry[]>(
+    '/v1/cryptocurrency/map?listing_status=active&limit=5000&sort=cmc_rank',
+    false
+  );
+  mapCache = { at: Date.now(), list };
+  return list;
+}
 
-  const hasSpace = /\s/.test(input);
-  if (!hasSpace && input.length <= 10 && !input.includes('-')) {
-    return { param: 'symbol', value: input.toUpperCase() };
-  }
-  if (!hasSpace) return { param: 'slug', value: input.toLowerCase() };
+/**
+ * Resolve user input to a CMC coin id.
+ *
+ * Priority (lowest cmc_rank wins inside a tier):
+ *   1. exact slug or exact name   ("bitcoin", "Falcon Finance")
+ *   2. exact symbol               ("BTC", "FF")
+ *   3. partial name
+ *
+ * Names beat tickers on purpose: another coin can use "BITCOIN" as its symbol.
+ */
+function resolveFromMap(input: string, list: MapEntry[]): { id: number; alternatives: Alternative[] } | null {
+  const q = input.trim().toLowerCase();
+  const qSlug = slugify(input);
+  const qSym = input.trim().toUpperCase();
+  const byRank = (a: MapEntry, b: MapEntry) => rankOf(a.rank) - rankOf(b.rank);
 
-  // Name with spaces: /map has no name filter, so pull the ranked list once
-  // and cache it for 24h.
-  try {
-    const list = await cmc<MapEntry[]>(
-      '/v1/cryptocurrency/map?listing_status=active&limit=5000&sort=cmc_rank&aux=platform',
-      86400
-    );
-    const q = input.toLowerCase();
-    const byRank = (a: MapEntry, b: MapEntry) => (a.rank ?? 1e9) - (b.rank ?? 1e9);
-    const exact = list.filter((c) => c.name.toLowerCase() === q).sort(byRank)[0];
-    const partial = list.filter((c) => c.name.toLowerCase().includes(q)).sort(byRank)[0];
-    const hit = exact ?? partial;
-    if (hit) return { param: 'id', value: String(hit.id) };
-  } catch (e) {
-    console.error('CMC map lookup failed, falling back to slug:', e);
+  const identity = list.filter((c) => c.slug === qSlug || c.name.toLowerCase() === q).sort(byRank);
+  const symbol = list.filter((c) => c.symbol.toUpperCase() === qSym).sort(byRank);
+  const partial = q.length >= 3 ? list.filter((c) => c.name.toLowerCase().includes(q)).sort(byRank) : [];
+
+  const ordered = [...identity, ...symbol, ...partial];
+  const seen = new Set<number>();
+  const unique = ordered.filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true)));
+  if (unique.length === 0) return null;
+
+  const [best, ...rest] = unique;
+  return {
+    id: best.id,
+    alternatives: rest.slice(0, 5).map((c) => ({
+      id: c.id,
+      name: c.name,
+      symbol: c.symbol,
+      slug: c.slug,
+      cmc_rank: c.rank,
+    })),
+  };
+}
+
+/** Pull the coin candidates out of a v2 quotes response (object or array per key). */
+function extractCoins(quotes: Record<string, Coin | Coin[]>): Coin[] {
+  const out: Coin[] = [];
+  for (const v of Object.values(quotes)) {
+    if (Array.isArray(v)) out.push(...v);
+    else if (v) out.push(v);
   }
-  return { param: 'slug', value: slugify(input) };
+  return out;
 }
 
 export async function GET(
@@ -142,30 +176,72 @@ export async function GET(
 
   try {
     const { cryptoName } = await params;
-    const decoded = decodeURIComponent(cryptoName);
-    const lookup = await resolveLookup(decoded, request.nextUrl.searchParams.get('by'));
+    const input = decodeURIComponent(cryptoName).trim();
+    const forced = request.nextUrl.searchParams.get('by');
 
-    // v2 returns every coin sharing a symbol (v1 silently returned one).
-    const quotes = await cmc<Record<string, Coin | Coin[]>>(
-      `/v2/cryptocurrency/quotes/latest?${lookup.param}=${encodeURIComponent(lookup.value)}&convert=USD`,
-      60
-    );
+    let coin: Coin | undefined;
+    let alternatives: Alternative[] = [];
 
-    const first = Object.values(quotes)[0];
-    const candidates = (Array.isArray(first) ? first : [first]).filter(Boolean);
-    if (candidates.length === 0) {
+    const fetchQuotes = (l: Lookup) =>
+      cmc<Record<string, Coin | Coin[]>>(
+        `/v2/cryptocurrency/quotes/latest?${l.param}=${encodeURIComponent(l.value)}&convert=USD`,
+        60
+      );
+
+    if (forced === 'id' || forced === 'symbol' || forced === 'slug') {
+      // Explicit override: no guessing.
+      const value = forced === 'symbol' ? input.toUpperCase() : input.toLowerCase();
+      const found = extractCoins(await fetchQuotes({ param: forced, value })).sort(
+        (a, b) => rankOf(a.cmc_rank) - rankOf(b.cmc_rank)
+      );
+      coin = found[0];
+      alternatives = found.slice(1).map((c) => ({
+        id: c.id, name: c.name, symbol: c.symbol, slug: c.slug, cmc_rank: c.cmc_rank,
+      }));
+    } else if (/^\d+$/.test(input)) {
+      coin = extractCoins(await fetchQuotes({ param: 'id', value: input }))[0];
+    } else {
+      let resolvedId: number | null = null;
+      try {
+        const hit = resolveFromMap(input, await getMap());
+        if (hit) {
+          resolvedId = hit.id;
+          alternatives = hit.alternatives;
+        }
+      } catch (e) {
+        console.error('CMC map lookup failed, falling back to slug then symbol:', e);
+      }
+
+      if (resolvedId !== null) {
+        coin = extractCoins(await fetchQuotes({ param: 'id', value: String(resolvedId) }))[0];
+      } else {
+        // Fallback: slug first (identity), then symbol.
+        const attempts: Lookup[] = [
+          { param: 'slug', value: slugify(input) },
+          { param: 'symbol', value: input.toUpperCase() },
+        ];
+        for (const attempt of attempts) {
+          try {
+            const found = extractCoins(await fetchQuotes(attempt)).sort(
+              (a, b) => rankOf(a.cmc_rank) - rankOf(b.cmc_rank)
+            );
+            if (found.length > 0) {
+              coin = found[0];
+              alternatives = found.slice(1).map((c) => ({
+                id: c.id, name: c.name, symbol: c.symbol, slug: c.slug, cmc_rank: c.cmc_rank,
+              }));
+              break;
+            }
+          } catch (e) {
+            if (!(e instanceof CmcError) || e.httpStatus >= 500 || e.httpStatus === 429) throw e;
+          }
+        }
+      }
+    }
+
+    if (!coin) {
       return NextResponse.json({ error: 'Cryptocurrency not found' }, { status: 404 });
     }
-    candidates.sort((a, b) => (a.cmc_rank ?? 1e9) - (b.cmc_rank ?? 1e9));
-    const coin = candidates[0];
-
-    const alternatives = candidates.slice(1).map((c) => ({
-      id: c.id,
-      name: c.name,
-      symbol: c.symbol,
-      slug: c.slug,
-      cmc_rank: c.cmc_rank,
-    }));
 
     // Info is nice-to-have; never fail the request because of it.
     let info: CoinInfo | undefined;
@@ -218,7 +294,7 @@ export async function GET(
       const notFound = /invalid value|not found|no .* found/i.test(error.message);
       return NextResponse.json(
         { error: notFound ? 'Cryptocurrency not found' : error.message },
-        { status: notFound ? 404 : 502 }
+        { status: notFound ? 404 : error.httpStatus === 429 ? 429 : 502 }
       );
     }
     const message = error instanceof Error ? error.message : 'Failed to fetch cryptocurrency data';

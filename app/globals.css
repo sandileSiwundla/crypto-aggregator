@@ -1,19 +1,48 @@
 @import "tailwindcss";
 
-
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-paper: #f8f7f4;
+  --color-paper-alt: #f0efec;
+  --color-ink: #1e1e1e;
+  --color-ink-dim: #2d2d2d;
+  --color-slate-academic: #697487;
+  --color-slate-academic-dim: #86909f;
+  --color-accent: #4a6a8c;
+  --color-accent-dim: #6b8cb0;
+  --color-rule: #d1ccc5;
+  --color-rule-dim: #b9b3aa;
+  --color-accent-soft: #e5ece5;
+  --color-positive: #2d8659;
+  --color-positive-bg: #e8f5e9;
+  --color-negative: #c0392b;
+  --color-negative-bg: #fdecea;
+  --color-warning: #b9770e;
+  --color-warning-bg: #fef5e6;
+  --font-body: "Charter", "Georgia", serif;
+  --font-mono: "Menlo", "Monaco", monospace;
+}
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply antialiased bg-paper text-ink font-body;
+    font-feature-settings: "kern" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply text-ink font-body;
+  }
+  a {
+    @apply text-accent no-underline;
+  }
+  a:hover {
+    @apply underline;
+  }
+  table {
+    border-collapse: collapse;
   }
 }
 
-@layer components {
-  .card {
-    @apply bg-white rounded-xl shadow-lg p-6;
-  }
+/* Academic card: flat rules, no shadows, no gradients */
+.academic-card {
+  @apply bg-paper border border-rule rounded-none shadow-none;
 }

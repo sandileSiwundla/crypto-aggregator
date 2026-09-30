@@ -5,54 +5,54 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto py-16">
+    <div className="min-h-screen bg-paper text-ink">
+      <div className="container mx-auto py-16 px-4">
         <header className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-ink mb-3">
             AssetView
           </h1>
-          <p className="text-xl text-gray-300">
+          <p className="text-slate-academic text-lg font-light">
             Professional Crypto Asset Intelligence
           </p>
         </header>
 
         <main className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold text-white mb-4">
+            <h2 className="text-2xl font-semibold text-ink mb-3">
               Professional Crypto Asset Intelligence
             </h2>
-            <p className="text-gray-300">
+            <p className="text-slate-academic font-light">
               Comprehensive market data, tokenomics, and research tools for informed investment decisions
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             <Link href="/token" 
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-8 hover:bg-white/20 transition-all group">
-              <h3 className="text-2xl font-semibold text-white mb-2">Token Analysis</h3>
-              <p className="text-gray-300 mb-4">
+              className="border border-rule p-8 hover:border-accent transition-all group">
+              <h3 className="text-xl font-semibold text-ink mb-2">Token Analysis</h3>
+              <p className="text-slate-academic mb-4 font-light">
                 Deep dive into individual tokens with price history, supply data, and fundamentals
               </p>
-              <span className="text-purple-400 group-hover:text-purple-300">
+              <span className="text-accent-dim group-hover:text-accent">
                 Analyze Tokens →
               </span>
             </Link>
 
             <Link href="/compare"
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-8 hover:bg-white/20 transition-all group">
-              <h3 className="text-2xl font-semibold text-white mb-2">Compare Assets</h3>
-              <p className="text-gray-300 mb-4">
+              className="border border-rule p-8 hover:border-accent transition-all group">
+              <h3 className="text-xl font-semibold text-ink mb-2">Compare Assets</h3>
+              <p className="text-slate-academic mb-4 font-light">
                 Side-by-side comparison of multiple cryptocurrencies and their metrics
               </p>
-              <span className="text-purple-400 group-hover:text-purple-300">
+              <span className="text-accent-dim group-hover:text-accent">
                 Start Comparing →
               </span>
             </Link>
           </div>
         </main>
 
-        <footer className="text-center mt-16 pt-8 border-t border-white/10">
-          <p className="text-gray-400">
+        <footer className="text-center mt-16 pt-8 border-t border-rule">
+          <p className="text-slate-academic-dim font-light">
             © 2025 AssetView. Professional cryptocurrency research platform.
           </p>
         </footer>
