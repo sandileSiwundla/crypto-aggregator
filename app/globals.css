@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paper & ink — the foundation */
+  /* Paper & ink: the foundation */
   --color-paper: #faf9f6;
   --color-paper-alt: #f4f2ed;
   --color-paper-warm: #f0ede6;
@@ -13,12 +13,12 @@
   --color-slate-academic: #5a6472;
   --color-slate-academic-dim: #8a92a0;
 
-  /* Rules (borders) — the academic signature */
+  /* Rules (borders): the academic signature */
   --color-rule: #e0dcd4;
   --color-rule-strong: #c9c4ba;
   --color-rule-heavy: #8a8578;
 
-  /* Accent — muted editorial blue */
+  /* Accent: muted editorial blue */
   --color-accent: #34567a;
   --color-accent-dim: #5a7a9e;
   --color-accent-soft: #e8eef4;
@@ -38,6 +38,13 @@
   --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
 }
 
+/* ---------- Custom utilities (must be @utility to be usable with @apply) ---------- */
+
+/* Small caps label: very academic */
+@utility label-caps {
+  @apply font-ui text-[11px] uppercase tracking-[0.14em] text-slate-academic;
+}
+
 @layer base {
   html {
     font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
@@ -53,7 +60,7 @@
     letter-spacing: -0.01em;
   }
 
-  /* Tabular numerals everywhere — critical for finance */
+  /* Tabular numerals everywhere: critical for finance */
   .num, td, th, .price, .metric {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum" 1;
@@ -62,7 +69,7 @@
 
 /* ---------- Academic component primitives ---------- */
 
-/* A ruled section — the workhorse container */
+/* A ruled section: the workhorse container */
 .academic-section {
   @apply border-t border-rule pt-6 mt-6;
 }
@@ -77,17 +84,12 @@
   @apply bg-paper-alt border border-rule;
 }
 
-/* Small caps label — very academic */
-.label-caps {
-  @apply font-ui text-[11px] uppercase tracking-[0.14em] text-slate-academic;
-}
-
-/* Serif drop-cap-ish lead paragraph */
+/* Lead paragraph */
 .lead {
   @apply font-body text-lg text-slate-academic leading-relaxed;
 }
 
-/* Button — flat, editorial */
+/* Buttons: flat, editorial */
 .btn-academic {
   @apply font-ui text-sm tracking-wide border border-ink px-5 py-2.5
          bg-transparent text-ink transition-colors duration-150;
@@ -103,12 +105,11 @@
 .btn-academic-primary:hover {
   @apply bg-accent-dim border-accent-dim;
 }
-
 .btn-academic-primary:disabled {
   @apply opacity-40 cursor-not-allowed;
 }
 
-/* Input — underline style, very editorial */
+/* Input: underline style, very editorial */
 .input-academic {
   @apply w-full font-body text-base bg-transparent border-0 border-b border-rule
          px-0 py-3 text-ink placeholder:text-slate-academic-dim
@@ -130,5 +131,9 @@
 }
 
 /* Change indicators */
-.change-pos { @apply text-positive font-mono; }
-.change-neg { @apply text-negative font-mono; }
+.change-pos {
+  @apply text-positive font-mono;
+}
+.change-neg {
+  @apply text-negative font-mono;
+}
