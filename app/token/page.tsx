@@ -42,36 +42,17 @@ interface ApiResponse {
   usdToZar: number | null;
 }
 
-type CryptoTableRow = {
-  name: string;
-  symbol: string;
-  [key: string]: unknown;
-};
-
 export default function TokenPage() {
   const [cryptoName, setCryptoName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<ApiResponse | null>(null);
-  const [allCoins, setAllCoins] = useState<Token[]>([]);
-  
 
   const fetchTokenData = useCallback(async (name: string) => {
     const res = await fetch(`/api/single/${encodeURIComponent(name)}`);
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to fetch data');
     return result;
-  }, []);
-
-  const fetchTopCoins = useCallback(async () => {
-    try {
-      const res = await fetch('/api/cryptocurrency/listings/latest?limit=10');
-      if (!res.ok) return [];
-      const listings = await res.json();
-      return listings.data || [];
-    } catch {
-      return [];
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,14 +63,8 @@ export default function TokenPage() {
     setError(null);
 
     try {
-      const [tokenData, topCoins] = await Promise.all([
-        fetchTokenData(cryptoName),
-        fetchTopCoins()
-      ]);
-
+      const tokenData = await fetchTokenData(cryptoName);
       setData(tokenData);
-      setAllCoins(topCoins);
-      
     } catch (err: unknown) {
       console.error('Fetch error:', err);
       const message = err instanceof Error ? err.message : 'Failed to fetch cryptocurrency data';
@@ -100,118 +75,99 @@ export default function TokenPage() {
     }
   };
 
-  const handleRowClick = useCallback((token: { name: string }) => {
-    setCryptoName(token.name);
-    // Use setTimeout to ensure state is updated before submitting
-    setTimeout(() => {
-      const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-      handleSubmit(fakeEvent);
-    }, 0);
-  }, []);
-
   const handleRetry = useCallback(() => {
     setError(null);
     setCryptoName('');
     setData(null);
-    setAllCoins([]);
   }, []);
 
   return (
-    <div className="min-h-screen bg-black via-slate-800 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold text-white bg-white bg-clip-text">
-              CryptoResearch Analytics
-            </h1>
+    <div className="min-h-screen bg-paper text-ink">
+      <div className="max-w-5xl mx-auto px-6 py-16">
+
+        {/* Masthead */}
+        <header className="border-b border-rule pb-6 mb-10">
+          <div className="flex items-baseline justify-between gap-4 flex-wrap">
+            <div>
+              <div className="label-caps mb-2">AssetView · § I</div>
+              <h1 className="text-3xl font-display">Token Analysis</h1>
+            </div>
+            <p className="hidden md:block label-caps">
+              Research · Not investment advice
+            </p>
           </div>
-          <p className="text-slate-400">
-            Academic grade cryptocurrency analysis for research purposes
-          </p>
         </header>
 
-        {/* Search Form */}
-        <div className="max-w-2xl mx-auto mb-8">
-          <form onSubmit={handleSubmit} className="flex gap-3">
+        {/* Search */}
+        <form onSubmit={handleSubmit} className="flex gap-4 items-end mb-12 max-w-2xl">
+          <div className="flex-1">
+            <label className="label-caps block mb-2">
+              Enter token name or symbol
+            </label>
             <input
               type="text"
               value={cryptoName}
               onChange={(e) => setCryptoName(e.target.value)}
-              placeholder="e.g., Bitcoin, BTC, Ethereum, ETH..."
-              className="flex-1 px-5 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              placeholder="Bitcoin, BTC, Ethereum…"
+              className="input-academic"
               disabled={loading}
             />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/20"
-            >
-              {loading ? 'Analyzing...' : 'Analyze'}
-            </button>
-          </form>
-        </div>
+          </div>
+          <button
+            type="submit"
+            disabled={loading || !cryptoName.trim()}
+            className="btn-academic-primary mb-px"
+          >
+            {loading ? 'Analyzing…' : 'Analyze'}
+          </button>
+        </form>
 
-        {/* Loading State */}
+        {/* Loading */}
         {loading && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <CryptoDetailLoading />
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-12">
               <LoadingSpinner />
             </div>
           </div>
         )}
 
+        {/* Error */}
         {error && !loading && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <CryptoDetailError message={error} />
             <ErrorMessage message={error} onRetry={handleRetry} />
           </div>
         )}
 
+        {/* Results */}
         {data?.coin && !loading && (
-          <div className="space-y-6">
-
+          <article className="space-y-10">
             <CryptoDetail coin={data.coin} usdToZar={data.usdToZar || undefined} />
 
             <TokenAnalysis token={data.coin} />
 
-
-            {/* Price Chart - Now handles its own data fetching */}
-            <PriceChart 
-              cryptoName={cryptoName}  // Pass the crypto name for API calls
-              symbol={data.coin.symbol}  // Display symbol
-              height={320}  // Chart height in pixels
-              days={30}  // Show last 30 days (can be 7, 14, 30, 90)
+            <PriceChart
+              cryptoName={cryptoName}
+              symbol={data.coin.symbol}
+              height={320}
+              days={30}
             />
-
-
-            {/* Top Cryptocurrencies Table */}
-            {/* {allCoins.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-white text-lg font-semibold mb-4 flex items-center gap-2">
-                  <span className="text-blue-400">📊</span> Top Cryptocurrencies
-                </h3>
-                <CryptoTable 
-                  coins={allCoins} 
-                  usdToZar={data.usdToZar || undefined}
-                  onRowClick={handleRowClick}
-                />
-              </div>
-            )} */}
-          </div>
+          </article>
         )}
 
-        {/* Empty State - No data and not loading */}
+        {/* Empty state */}
         {!data && !loading && !error && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl text-white font-semibold mb-2">Search for a Cryptocurrency</h3>
-            <p className="text-slate-400">
-              Enter a token name or symbol above to start your research
+          <div className="py-24 text-center border-t border-rule">
+            <div className="label-caps mb-4">Awaiting query</div>
+            <p className="font-display text-xl text-ink-dim max-w-md mx-auto leading-relaxed">
+              Enter a token above to begin your analysis.
+              Results will include price history, supply,
+              and fundamental metrics.
             </p>
           </div>
         )}
+
       </div>
     </div>
   );

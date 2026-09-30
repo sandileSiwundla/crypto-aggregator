@@ -85,7 +85,6 @@ export default function ComparePage() {
     setError(null);
 
     try {
-      // Fetch both tokens and their historical data in parallel
       const [data1, data2, history1, history2] = await Promise.all([
         fetchTokenData(tokenName1),
         fetchTokenData(tokenName2),
@@ -134,41 +133,46 @@ export default function ComparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold bg-white bg-clip-text text-transparent">
-              Crypto Asset Comparator
-            </h1>
+    <div className="min-h-screen bg-paper text-ink">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+
+        {/* Masthead */}
+        <header className="border-b border-rule pb-6 mb-10">
+          <div className="flex items-baseline justify-between gap-4 flex-wrap">
+            <div>
+              <div className="label-caps mb-2">AssetView · § II</div>
+              <h1 className="text-3xl font-display">Comparative Analysis</h1>
+            </div>
+            <p className="hidden md:block label-caps">
+              Side-by-side · Two assets
+            </p>
           </div>
-          <p className="text-slate-400">
-            Side-by-side analysis of any two cryptocurrencies
-          </p>
         </header>
 
         {/* Compare Form */}
         <CompareForm onCompare={handleCompare} loading={loading} />
 
-        {/* Loading State */}
+        {/* Loading */}
         {loading && (
           <div className="flex justify-center py-16">
             <LoadingSpinner />
           </div>
         )}
 
+        {/* Error */}
         {error && !loading && (
           <ErrorMessage message={error} onRetry={handleRetry} />
         )}
 
-        {/* Comparison Results */}
+        {/* Results */}
         {token1 && token2 && !loading && (
-          <div className="space-y-6">
-            {/* Token Comparison Cards */}
-            <TokenComparisonCards token1={token1} token2={token2} usdToZar={usdToZar || undefined} />
+          <div className="space-y-10">
+            <TokenComparisonCards
+              token1={token1}
+              token2={token2}
+              usdToZar={usdToZar || undefined}
+            />
 
-            {/* Price Comparison Chart */}
             <CompareChart
               token1={token1}
               token2={token2}
@@ -177,21 +181,25 @@ export default function ComparePage() {
               onPeriodChange={handlePeriodChange}
             />
 
-            {/* Detailed Comparison Table */}
-            <CompareTable token1={token1} token2={token2} usdToZar={usdToZar || undefined} />
+            <CompareTable
+              token1={token1}
+              token2={token2}
+              usdToZar={usdToZar || undefined}
+            />
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty state */}
         {!token1 && !token2 && !loading && !error && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl text-white font-semibold mb-2">Compare Any Two Cryptocurrencies</h3>
-            <p className="text-slate-400">
-              Enter two token names or symbols above to start your analysis
+          <div className="py-24 text-center border-t border-rule">
+            <div className="label-caps mb-4">Awaiting query</div>
+            <p className="font-display text-xl text-ink-dim max-w-lg mx-auto leading-relaxed">
+              Enter two token names or symbols above to begin
+              your comparative analysis.
             </p>
           </div>
         )}
+
       </div>
     </div>
   );

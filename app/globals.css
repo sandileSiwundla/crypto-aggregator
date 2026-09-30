@@ -1,48 +1,134 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #f8f7f4;
-  --color-paper-alt: #f0efec;
-  --color-ink: #1e1e1e;
-  --color-ink-dim: #2d2d2d;
-  --color-slate-academic: #697487;
-  --color-slate-academic-dim: #86909f;
-  --color-accent: #4a6a8c;
-  --color-accent-dim: #6b8cb0;
-  --color-rule: #d1ccc5;
-  --color-rule-dim: #b9b3aa;
-  --color-accent-soft: #e5ece5;
-  --color-positive: #2d8659;
-  --color-positive-bg: #e8f5e9;
-  --color-negative: #c0392b;
-  --color-negative-bg: #fdecea;
-  --color-warning: #b9770e;
-  --color-warning-bg: #fef5e6;
-  --font-body: "Charter", "Georgia", serif;
-  --font-mono: "Menlo", "Monaco", monospace;
+  /* Paper & ink — the foundation */
+  --color-paper: #faf9f6;
+  --color-paper-alt: #f4f2ed;
+  --color-paper-warm: #f0ede6;
+  --color-ink: #1a1a1a;
+  --color-ink-dim: #3d3d3d;
+  --color-ink-soft: #6b6b6b;
+
+  /* Text hierarchy */
+  --color-slate-academic: #5a6472;
+  --color-slate-academic-dim: #8a92a0;
+
+  /* Rules (borders) — the academic signature */
+  --color-rule: #e0dcd4;
+  --color-rule-strong: #c9c4ba;
+  --color-rule-heavy: #8a8578;
+
+  /* Accent — muted editorial blue */
+  --color-accent: #34567a;
+  --color-accent-dim: #5a7a9e;
+  --color-accent-soft: #e8eef4;
+
+  /* Semantic */
+  --color-positive: #2d6a4f;
+  --color-positive-bg: #eaf3ec;
+  --color-negative: #9b2c2c;
+  --color-negative-bg: #f7eaea;
+  --color-warning: #8a6d1f;
+  --color-warning-bg: #f7f1e0;
+
+  /* Typography */
+  --font-body: "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-display: "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-ui: "Inter", "Söhne", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
 }
 
 @layer base {
+  html {
+    font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply antialiased bg-paper text-ink font-body;
-    font-feature-settings: "kern" 1;
-    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
-    @apply text-ink font-body;
+
+  h1, h2, h3, h4, h5 {
+    @apply font-display text-ink;
+    letter-spacing: -0.01em;
   }
-  a {
-    @apply text-accent no-underline;
-  }
-  a:hover {
-    @apply underline;
-  }
-  table {
-    border-collapse: collapse;
+
+  /* Tabular numerals everywhere — critical for finance */
+  .num, td, th, .price, .metric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
 }
 
-/* Academic card: flat rules, no shadows, no gradients */
-.academic-card {
-  @apply bg-paper border border-rule rounded-none shadow-none;
+/* ---------- Academic component primitives ---------- */
+
+/* A ruled section — the workhorse container */
+.academic-section {
+  @apply border-t border-rule pt-6 mt-6;
 }
+
+/* A panel with hairline border, no shadow */
+.academic-panel {
+  @apply border border-rule bg-paper;
+}
+
+/* A subtle paper card (slightly warmer) */
+.academic-card {
+  @apply bg-paper-alt border border-rule;
+}
+
+/* Small caps label — very academic */
+.label-caps {
+  @apply font-ui text-[11px] uppercase tracking-[0.14em] text-slate-academic;
+}
+
+/* Serif drop-cap-ish lead paragraph */
+.lead {
+  @apply font-body text-lg text-slate-academic leading-relaxed;
+}
+
+/* Button — flat, editorial */
+.btn-academic {
+  @apply font-ui text-sm tracking-wide border border-ink px-5 py-2.5
+         bg-transparent text-ink transition-colors duration-150;
+}
+.btn-academic:hover {
+  @apply bg-ink text-paper;
+}
+
+.btn-academic-primary {
+  @apply font-ui text-sm tracking-wide border border-accent px-5 py-2.5
+         bg-accent text-paper transition-colors duration-150;
+}
+.btn-academic-primary:hover {
+  @apply bg-accent-dim border-accent-dim;
+}
+
+.btn-academic-primary:disabled {
+  @apply opacity-40 cursor-not-allowed;
+}
+
+/* Input — underline style, very editorial */
+.input-academic {
+  @apply w-full font-body text-base bg-transparent border-0 border-b border-rule
+         px-0 py-3 text-ink placeholder:text-slate-academic-dim
+         focus:outline-none focus:border-ink transition-colors;
+}
+
+/* Data table */
+.table-academic {
+  @apply w-full font-mono text-sm;
+}
+.table-academic th {
+  @apply label-caps text-left py-2 border-b border-rule-heavy font-normal;
+}
+.table-academic td {
+  @apply py-3 border-b border-rule;
+}
+.table-academic tr:hover td {
+  @apply bg-paper-alt;
+}
+
+/* Change indicators */
+.change-pos { @apply text-positive font-mono; }
+.change-neg { @apply text-negative font-mono; }

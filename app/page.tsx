@@ -2,60 +2,73 @@
 
 import Link from 'next/link';
 
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <div className="container mx-auto py-16 px-4">
-        <header className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-ink mb-3">
+      <div className="max-w-3xl mx-auto py-24 px-6">
+
+        {/* Masthead — like a journal header */}
+        <header className="text-center mb-20">
+          <div className="label-caps mb-3">Established MMXXV</div>
+          <h1 className="text-5xl font-display tracking-tight mb-3">
             AssetView
           </h1>
-          <p className="text-slate-academic text-lg font-light">
-            Professional Crypto Asset Intelligence
+          <div className="h-px w-16 bg-rule-heavy mx-auto my-4" />
+          <p className="lead">
+            Professional crypto asset intelligence
           </p>
         </header>
 
-        <main className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-semibold text-ink mb-3">
-              Professional Crypto Asset Intelligence
-            </h2>
-            <p className="text-slate-academic font-light">
-              Comprehensive market data, tokenomics, and research tools for informed investment decisions
+        {/* Two-column index — like a table of contents */}
+        <main className="grid md:grid-cols-2 gap-px bg-rule border border-rule">
+          <Link
+            href="/token"
+            className="group bg-paper p-10 hover:bg-paper-alt transition-colors"
+          >
+            <div className="label-caps mb-4">§ I</div>
+            <h3 className="text-xl font-display mb-3">
+              Token Analysis
+            </h3>
+            <p className="text-slate-academic text-sm leading-relaxed mb-6">
+              Deep dive into individual tokens with price history,
+              supply data, and fundamentals.
             </p>
-          </div>
+            <span className="font-ui text-xs tracking-widest uppercase
+                             text-accent-dim group-hover:text-accent
+                             border-b border-transparent group-hover:border-accent
+                             pb-0.5 transition-all">
+              Analyze Tokens →
+            </span>
+          </Link>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <Link href="/token" 
-              className="border border-rule p-8 hover:border-accent transition-all group">
-              <h3 className="text-xl font-semibold text-ink mb-2">Token Analysis</h3>
-              <p className="text-slate-academic mb-4 font-light">
-                Deep dive into individual tokens with price history, supply data, and fundamentals
-              </p>
-              <span className="text-accent-dim group-hover:text-accent">
-                Analyze Tokens →
-              </span>
-            </Link>
-
-            <Link href="/compare"
-              className="border border-rule p-8 hover:border-accent transition-all group">
-              <h3 className="text-xl font-semibold text-ink mb-2">Compare Assets</h3>
-              <p className="text-slate-academic mb-4 font-light">
-                Side-by-side comparison of multiple cryptocurrencies and their metrics
-              </p>
-              <span className="text-accent-dim group-hover:text-accent">
-                Start Comparing →
-              </span>
-            </Link>
-          </div>
+          <Link
+            href="/compare"
+            className="group bg-paper p-10 hover:bg-paper-alt transition-colors"
+          >
+            <div className="label-caps mb-4">§ II</div>
+            <h3 className="text-xl font-display mb-3">
+              Compare Assets
+            </h3>
+            <p className="text-slate-academic text-sm leading-relaxed mb-6">
+              Side-by-side comparison of multiple cryptocurrencies
+              and their metrics.
+            </p>
+            <span className="font-ui text-xs tracking-widest uppercase
+                             text-accent-dim group-hover:text-accent
+                             border-b border-transparent group-hover:border-accent
+                             pb-0.5 transition-all">
+              Start Comparing →
+            </span>
+          </Link>
         </main>
 
-        <footer className="text-center mt-16 pt-8 border-t border-rule">
-          <p className="text-slate-academic-dim font-light">
-            © 2025 AssetView. Professional cryptocurrency research platform.
+        {/* Footer note */}
+        <footer className="mt-16 text-center">
+          <p className="label-caps">
+            Data for research purposes · Not investment advice
           </p>
         </footer>
+
       </div>
     </div>
   );
