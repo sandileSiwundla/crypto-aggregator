@@ -1,27 +1,14 @@
 'use client';
 
 import React, { useRef, useState, RefObject } from 'react';
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ReferenceLine,
-} from 'recharts';
 import { toPng } from 'html-to-image';
 
 interface TokenQuote {
   price: number;
-  percent_change_1h?: number;
-  percent_change_24h?: number;
   percent_change_7d?: number;
   percent_change_30d?: number;
+  percent_change_60d?: number;
+  percent_change_90d?: number;
   market_cap?: number;
   fully_diluted_market_cap?: number;
   volume_24h?: number;
@@ -31,12 +18,16 @@ interface Token {
   id: number;
   name: string;
   symbol: string;
+  slug?: string;
   logo?: string;
-  cmc_rank?: number;
+  cmc_rank?: number | null;
+  num_market_pairs?: number;
+  date_added?: string;
   circulating_supply?: number;
   total_supply?: number;
-  max_supply?: number;
-  platform?: { name: string };
+  max_supply?: number | null;
+  infinite_supply?: boolean;
+  platform?: { name: string } | null;
   quote?: { USD?: TokenQuote };
 }
 
@@ -44,15 +35,11 @@ interface TokenAnalysisProps {
   token: Token;
 }
 
-interface TooltipPayloadItem {
-  value?: number;
-  payload?: { period?: string; label?: string };
-}
-
 interface MetricRowProps {
   label: string;
   value: string;
   change?: number;
+  hint?: string;
 }
 
 interface CardHeaderProps {
@@ -64,48 +51,78 @@ interface CardHeaderProps {
   cardRef: RefObject<HTMLDivElement | null>;
 }
 
-interface BrandingProps {
-  logo?: string;
-}
+const ABC_BRANDING = { name: 'Africa Blockchain Club', logo: '/ABC.png' };
 
-const ABC_BRANDING = {
-  name: 'ABC Africa Blockchain Club',
-  logo: '/ABC.png',
+/* ---------- formatters ---------- */
+
+const compact = (num: number): string => {
+  if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+  if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+  if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+  if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+  return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
 };
 
-const PALETTE = ['#3b82f6', '#8b5cf6', '#10b981'];
+/** Compact USD. Missing or zero is "N/A", never a misleading $0. */
+const fmtUSD = (v?: number | null): string => (v && v > 0 ? `$${compact(v)}` : 'N/A');
 
-const MetricRow: React.FC<MetricRowProps> = ({ label, value, change }) => {
-  const formatChange = (change?: number): string => {
-    if (change === undefined || change === null) return 'N/A';
-    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-  };
+/** Unit price: full precision for sub-dollar tokens. */
+const fmtPrice = (p?: number | null): string => {
+  if (p === undefined || p === null || !isFinite(p) || p <= 0) return 'N/A';
+  if (p >= 1000) return `$${p.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+  if (p >= 1) return `$${p.toFixed(2)}`;
+  if (p >= 0.01) return `$${p.toFixed(4)}`;
+  return `$${p.toPrecision(3)}`;
+};
 
-  const changeColor = (change?: number) =>
-    change === undefined || change === null
-      ? 'text-slate-400'
-      : change >= 0
-      ? 'text-emerald-400'
-      : 'text-red-400';
+const fmtSupply = (v?: number | null): string => (v && v > 0 ? compact(v) : 'N/A');
 
-  return (
-    <div className="flex items-center justify-between py-2.5 border-b border-slate-700/50 last:border-0">
-      <span className="text-slate-400 text-sm">{label}</span>
-      <div className="flex items-center gap-2">
-        <span className="text-white text-sm font-semibold">{value}</span>
-        {change !== undefined && change !== null && (
-          <span
-            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${changeColor(change)} ${
-              change >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
-            }`}
-          >
-            {formatChange(change)}
-          </span>
-        )}
-      </div>
-    </div>
+const fmtChange = (c?: number | null): string =>
+  c === undefined || c === null ? 'N/A' : `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
+
+const changeColor = (c?: number | null) =>
+  c === undefined || c === null ? 'text-slate-400' : c >= 0 ? 'text-emerald-400' : 'text-red-400';
+
+const fmtListed = (iso?: string): string => {
+  if (!iso) return 'N/A';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return 'N/A';
+  const now = new Date();
+  const months = Math.max(
+    0,
+    (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
   );
+  return `${d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} · ${months} mo`;
 };
+
+/** Price at the start of a period, implied by the percent change to now. */
+const impliedStartPrice = (price: number, changePct?: number): number | undefined =>
+  price > 0 && changePct !== undefined && changePct !== null && changePct > -100
+    ? price / (1 + changePct / 100)
+    : undefined;
+
+/* ---------- small components ---------- */
+
+const MetricRow: React.FC<MetricRowProps> = ({ label, value, change, hint }) => (
+  <div className="flex items-center justify-between py-2.5 border-b border-slate-700/50 last:border-0">
+    <div>
+      <span className="text-slate-400 text-sm">{label}</span>
+      {hint && <p className="text-slate-600 text-[11px] leading-tight">{hint}</p>}
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="text-white text-sm font-semibold">{value}</span>
+      {change !== undefined && change !== null && (
+        <span
+          className={`text-xs font-semibold px-1.5 py-0.5 rounded ${changeColor(change)} ${
+            change >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
+          }`}
+        >
+          {fmtChange(change)}
+        </span>
+      )}
+    </div>
+  </div>
+);
 
 const CardHeader: React.FC<CardHeaderProps> = ({
   title,
@@ -114,134 +131,58 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   downloading,
   onDownload,
   cardRef,
-}) => {
-  return (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center gap-3">
-        {token.logo ? (
-          <img src={token.logo} alt={token.name} className="w-9 h-9 rounded-lg object-cover" />
-        ) : (
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600" />
-        )}
-        <div>
-          <p className="text-white font-semibold leading-tight">{title}</p>
-          <p className="text-slate-500 text-xs">
-            {token.name} · {token.symbol}
-          </p>
-        </div>
+}) => (
+  <div className="flex items-center justify-between mb-5">
+    <div className="flex items-center gap-3">
+      {token.logo ? (
+        <img src={token.logo} alt={token.name} className="w-9 h-9 rounded-lg object-cover" />
+      ) : (
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600" />
+      )}
+      <div>
+        <p className="text-white font-semibold leading-tight">{title}</p>
+        <p className="text-slate-500 text-xs">
+          {token.name} · {token.symbol}
+        </p>
       </div>
-      <button
-        onClick={() => onDownload(cardRef, downloadKey)}
-        disabled={!!downloading}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium transition-colors"
-      >
-        {downloading === downloadKey ? (
-          <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-300 rounded-full animate-spin inline-block" />
-        ) : (
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
-        )}
-        Export
-      </button>
     </div>
-  );
-};
-
-const Branding: React.FC<BrandingProps> = ({ logo = ABC_BRANDING.logo }) => (
-  <div className="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-700/40">
-    <img
-      src={logo}
-      alt="ABC"
-      className="h-5 w-auto opacity-60"
-      onError={(e) => (e.currentTarget.style.display = 'none')}
-    />
-    <span className="text-slate-500 text-xs">ABC Africa Blockchain Club</span>
+    <button
+      onClick={() => onDownload(cardRef, downloadKey)}
+      disabled={!!downloading}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-medium transition-colors"
+    >
+      {downloading === downloadKey ? (
+        <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-300 rounded-full animate-spin inline-block" />
+      ) : (
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          />
+        </svg>
+      )}
+      Export
+    </button>
   </div>
 );
 
-// Moved to module scope so it can be used by SupplyTooltip without being declared inside render
-const formatSupply = (supply: number): string => {
-  if (supply >= 1e12) return (supply / 1e12).toFixed(2) + 'T';
-  if (supply >= 1e9) return (supply / 1e9).toFixed(2) + 'B';
-  if (supply >= 1e6) return (supply / 1e6).toFixed(2) + 'M';
-  if (supply >= 1e3) return (supply / 1e3).toFixed(2) + 'K';
-  return supply.toLocaleString();
-};
+const Branding: React.FC = () => (
+  <div className="flex items-center 5 mt-4 pt-3 border-t border-slate-700/40">
+    <img
+      src={ABC_BRANDING.logo}
+      alt="ABC"
+      className="h-12 w-auto opacity-60"
+      onError={(e) => (e.currentTarget.style.display = 'none')}
+    />
+    <span className="-ml-5 mt-5 text-slate-500 text-xs">
+    {ABC_BRANDING.name}
+  </span>
+  </div>
+);
 
-// ✅ Declared at module scope — not inside render — so React never recreates it
-const SupplyTooltip: React.FC<{
-  active?: boolean;
-  payload?: Array<{ value?: number; name?: string }>;
-}> = ({ active, payload }) => {
-  if (!active || !payload?.length) return null;
-  const val = payload[0].value;
-  const name = payload[0].name;
-  return (
-    <div
-      style={{
-        background: '#1e293b',
-        border: '1px solid #334155',
-        borderRadius: '8px',
-        padding: '6px 10px',
-        fontSize: '12px',
-      }}
-    >
-      <p style={{ color: '#94a3b8', marginBottom: 2 }}>{name}</p>
-      <p style={{ color: '#fff', fontWeight: 600 }}>
-        {val !== undefined ? formatSupply(val) : 'N/A'}
-      </p>
-    </div>
-  );
-};
-
-const PerformanceTooltip: React.FC<{ active?: boolean; payload?: TooltipPayloadItem[] }> = ({
-  active,
-  payload,
-}) => {
-  const formatChange = (change?: number): string => {
-    if (change === undefined || change === null) return 'N/A';
-    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-  };
-
-  if (!active || !payload?.length) return null;
-  const val: number = payload[0].value ?? 0;
-  return (
-    <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-      <p className="text-slate-400">{payload[0].payload?.period ?? 'N/A'}</p>
-      <p className={`font-semibold ${val >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-        {formatChange(val)}
-      </p>
-    </div>
-  );
-};
-
-const MarketTooltip: React.FC<{ active?: boolean; payload?: TooltipPayloadItem[] }> = ({
-  active,
-  payload,
-}) => {
-  const formatNumber = (num: number): string => {
-    if (num === 0) return '0';
-    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-  };
-
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm shadow-xl">
-      <p className="text-slate-400">{payload[0].payload?.label ?? 'N/A'}</p>
-      <p className="text-white font-semibold">${formatNumber(payload[0].value ?? 0)}</p>
-    </div>
-  );
-};
+/* ---------- main ---------- */
 
 export default function TokenAnalysis({ token }: TokenAnalysisProps) {
   const overviewRef = useRef<HTMLDivElement>(null);
@@ -252,67 +193,34 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
   const usd = token.quote?.USD;
   const price = usd?.price ?? 0;
   const marketCap = usd?.market_cap ?? 0;
-  const fullyDilutedMCap = usd?.fully_diluted_market_cap ?? 0;
+  const fdv = usd?.fully_diluted_market_cap ?? 0;
   const volume24h = usd?.volume_24h ?? 0;
-  const volumeRatio = marketCap > 0 ? ((volume24h / marketCap) * 100).toFixed(2) : '0.00';
 
-  const supplyData = [
-    { name: 'Circulating', value: token.circulating_supply || 0, color: PALETTE[0] },
-    {
-      name: 'Non-Circulating',
-      value: Math.max(0, (token.total_supply || 0) - (token.circulating_supply || 0)),
-      color: PALETTE[1],
-    },
-    {
-      name: 'Unissued',
-      value: Math.max(0, (token.max_supply || 0) - (token.total_supply || 0)),
-      color: PALETTE[2],
-    },
-  ].filter((item) => item.value > 0);
+  const circ = token.circulating_supply ?? 0;
+  const total = token.total_supply ?? 0;
+  const max = token.max_supply ?? 0;
 
-  const performanceData = [
-    { period: '1h', change: usd?.percent_change_1h ?? 0 },
-    { period: '24h', change: usd?.percent_change_24h ?? 0 },
-    { period: '7d', change: usd?.percent_change_7d ?? 0 },
-    { period: '30d', change: usd?.percent_change_30d ?? 0 },
-  ];
+  // Valuation / dilution
+  const volumeRatio = marketCap > 0 ? ((volume24h / marketCap) * 100).toFixed(2) + '%' : 'N/A';
+  const fdvMultiple = marketCap > 0 && fdv > 0 ? fdv / marketCap : null;
+  const notYetCirculating = marketCap > 0 && fdv > marketCap ? fdv - marketCap : 0;
 
-  const marketData = [
-    { label: 'Market Cap', value: marketCap },
-    { label: 'Fully Diluted', value: fullyDilutedMCap },
-    { label: '24h Volume', value: volume24h },
-  ].filter((d) => d.value > 0);
+  // Supply
+  const pctOfTotal = circ > 0 && total > 0 ? (circ / total) * 100 : null;
+  const pctOfMax = circ > 0 && max > 0 ? (circ / max) * 100 : null;
+  const nonCirculating = total > circ && circ > 0 ? total - circ : 0;
 
-  const formatNumber = (num: number): string => {
-    if (num === 0) return '0';
-    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-  };
 
-  const formatChange = (change?: number): string => {
-    if (change === undefined || change === null) return 'N/A';
-    return `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-  };
 
-  const changeColor = (change?: number) =>
-    change === undefined || change === null
-      ? 'text-slate-400'
-      : change >= 0
-      ? 'text-emerald-400'
-      : 'text-red-400';
+  // Performance (1h and 24h intentionally excluded)
+  const periods: Array<{ period: string; long: string; change?: number }> = [
+    { period: '7d', long: '7 days', change: usd?.percent_change_7d },
+    { period: '30d', long: '30 days', change: usd?.percent_change_30d },
+    { period: '60d', long: '60 days', change: usd?.percent_change_60d },
+    { period: '90d', long: '90 days', change: usd?.percent_change_90d },
+  ].filter((p) => p.change !== undefined && p.change !== null);
 
-  const circulatingPct =
-    token.max_supply && token.circulating_supply
-      ? ((token.circulating_supply / token.max_supply) * 100).toFixed(1)
-      : null;
-
-  const downloadAsImage = async (
-    ref: React.RefObject<HTMLDivElement | null>,
-    filename: string
-  ) => {
+  const downloadAsImage = async (ref: RefObject<HTMLDivElement | null>, filename: string) => {
     if (!ref.current || downloading) return;
     setDownloading(filename);
     try {
@@ -332,10 +240,12 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
     }
   };
 
+  const cardClass = 'rounded-2xl border border-slate-700/60 bg-slate-900 p-5';
+
   return (
     <div className="space-y-5">
-      {/* Token Overview */}
-      <div ref={overviewRef} className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5">
+      {/* ───────── Overview ───────── */}
+      <div ref={overviewRef} className={cardClass}>
         <CardHeader
           title="Token Overview"
           downloadKey="overview"
@@ -345,73 +255,32 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
           cardRef={overviewRef}
         />
 
-        <div className="flex items-end gap-3 mb-5">
-          {token.logo ? (
-            <img src={token.logo} alt={token.name} className="w-12 h-12 rounded-xl object-cover" />
-          ) : (
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shrink-0" />
-          )}
-          <div>
-            <div className="text-3xl font-bold text-white tracking-tight">
-              ${formatNumber(price)}
-            </div>
-            <div className={`text-sm font-semibold mt-0.5 ${changeColor(usd?.percent_change_24h)}`}>
-              {formatChange(usd?.percent_change_24h)}{' '}
-              <span className="text-slate-500 font-normal">24h</span>
-            </div>
-          </div>
+        <div className="flex items-end gap-3 mb-4">
+          <div className="text-3xl font-bold text-white tracking-tight">{fmtPrice(price)}</div>
           {token.cmc_rank && (
             <span className="ml-auto self-start text-xs font-semibold px-2 py-1 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              #{token.cmc_rank}
+              Rank #{token.cmc_rank}
             </span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <MetricRow label="Market Cap" value={`$${formatNumber(marketCap)}`} />
-            <MetricRow label="Fully Diluted MCap" value={`$${formatNumber(fullyDilutedMCap)}`} />
-            <MetricRow label="24h Volume" value={`$${formatNumber(volume24h)}`} />
-            <MetricRow label="Volume / MCap" value={`${volumeRatio}%`} />
-            <MetricRow label="Platform" value={token.platform?.name || 'Native'} />
-          </div>
+        <MetricRow label="Market Cap" value={fmtUSD(marketCap)}/>
+        <MetricRow label="Fully Diluted Valuation" value={fmtUSD(fdv)}/>
+        <MetricRow
+          label="FDV / Market Cap"
+          value={fdvMultiple ? `${fdvMultiple.toFixed(2)}×` : 'N/A'}
+        
+        />
+        <MetricRow label="Volume / Market Cap" value={volumeRatio} />
 
-          <div>
-            <p className="text-slate-500 text-xs mb-2">Market size comparison</p>
-            <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={marketData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: '#64748b', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={(v) => formatNumber(v)}
-                  tick={{ fill: '#64748b', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <Tooltip content={<MarketTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  {marketData.map((_, i) => (
-                    <Cell key={i} fill={PALETTE[i % PALETTE.length]} fillOpacity={0.85} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <MetricRow label="Platform" value={token.platform?.name || 'Native'} />
 
         <Branding />
       </div>
 
-      {/* Supply Metrics */}
-      <div ref={supplyRef} className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5">
+      {/* ───────── Supply & Allocation ───────── */}
+      <div ref={supplyRef} className={cardClass}>
         <CardHeader
-          title="Supply Metrics"
           downloadKey="supply"
           token={token}
           downloading={downloading}
@@ -419,99 +288,26 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
           cardRef={supplyRef}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <MetricRow
-              label="Circulating Supply"
-              value={formatSupply(token.circulating_supply || 0)}
-            />
-            <MetricRow label="Total Supply" value={formatSupply(token.total_supply || 0)} />
-            <MetricRow
-              label="Max Supply"
-              value={token.max_supply ? formatSupply(token.max_supply) : '∞ Unlimited'}
-            />
-            {circulatingPct && (
-              <MetricRow label="% Circulating" value={`${circulatingPct}%`} />
-            )}
+        <MetricRow label="Circulating Supply" value={fmtSupply(circ)} />
+        <MetricRow
+          label="Non-circulating"
+          value={nonCirculating > 0 ? fmtSupply(nonCirculating) : 'N/A'}
+          hint="Total minus circulating"
+        />
+        <MetricRow label="Total Supply" value={fmtSupply(total)} />
+        <MetricRow
+          label="Max Supply"
+          value={max > 0 ? fmtSupply(max) : token.infinite_supply ? '∞ Unlimited' : 'Not set'}
+        />
+        <MetricRow label="Circulating / Total" value={pctOfTotal !== null ? `${pctOfTotal.toFixed(1)}%` : 'N/A'} />
+        <MetricRow label="Circulating / Max" value={pctOfMax !== null ? `${pctOfMax.toFixed(1)}%` : 'N/A'} />
 
-            {circulatingPct && (
-              <div className="mt-3">
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
-                  <span>Circulating</span>
-                  <span>{circulatingPct}% of max</span>
-                </div>
-                <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-blue-500"
-                    style={{ width: `${Math.min(100, parseFloat(circulatingPct))}%` }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Donut chart with custom tooltip component — no formatter prop needed */}
-          <div className="flex flex-col items-center">
-            {supplyData.length > 0 ? (
-              <>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie
-                      data={supplyData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={72}
-                      paddingAngle={3}
-                      dataKey="value"
-                      strokeWidth={0}
-                    >
-                      {supplyData.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    {/*
-                      ✅ FIX APPLIED HERE:
-                      Replaced `formatter` prop (broken due to recharts' wide ValueType)
-                      with a fully custom `content` component (`SupplyTooltip`).
-                      This sidesteps the type mismatch entirely and gives richer control.
-                    */}
-                    <Tooltip content={<SupplyTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 mt-1">
-                  {supplyData.map((entry) => {
-                    const total = supplyData.reduce((s, d) => s + d.value, 0);
-                    const pct = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0';
-                    return (
-                      <div key={entry.name} className="flex items-center gap-1.5">
-                        <span
-                          className="w-2.5 h-2.5 rounded-sm inline-block"
-                          style={{ background: entry.color }}
-                        />
-                        <span className="text-slate-400 text-xs">
-                          {entry.name}{' '}
-                          <span className="text-slate-300 font-medium">{pct}%</span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <p className="text-slate-500 text-sm mt-8">No supply data available</p>
-            )}
-          </div>
-        </div>
 
         <Branding />
       </div>
 
-      {/* Performance Metrics */}
-      <div
-        ref={performanceRef}
-        className="rounded-2xl border border-slate-700/60 bg-slate-900 p-5"
-      >
+      {/* ───────── Performance ───────── */}
+      <div ref={performanceRef} className={cardClass}>
         <CardHeader
           title="Performance Metrics"
           downloadKey="performance"
@@ -521,66 +317,19 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
           cardRef={performanceRef}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
+        <p className="text-slate-500 text-xs mb-1">Implied price at start of period, and change to now</p>
+        {periods.length > 0 ? (
+          periods.map((p) => (
             <MetricRow
-              label="1 Hour"
-              value={formatChange(usd?.percent_change_1h)}
-              change={usd?.percent_change_1h}
+              key={p.period}
+              label={`${p.long} ago`}
+              value={fmtPrice(impliedStartPrice(price, p.change))}
+              change={p.change}
             />
-            <MetricRow
-              label="24 Hours"
-              value={formatChange(usd?.percent_change_24h)}
-              change={usd?.percent_change_24h}
-            />
-            <MetricRow
-              label="7 Days"
-              value={formatChange(usd?.percent_change_7d)}
-              change={usd?.percent_change_7d}
-            />
-            <MetricRow
-              label="30 Days"
-              value={formatChange(usd?.percent_change_30d)}
-              change={usd?.percent_change_30d}
-            />
-          </div>
-
-          <div>
-            <p className="text-slate-500 text-xs mb-2">Price change by period</p>
-            <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={performanceData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis
-                  dataKey="period"
-                  tick={{ fill: '#64748b', fontSize: 12 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={(v) => `${v}%`}
-                  tick={{ fill: '#64748b', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={40}
-                />
-                <ReferenceLine y={0} stroke="#334155" strokeWidth={1} />
-                <Tooltip
-                  content={<PerformanceTooltip />}
-                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                />
-                <Bar dataKey="change" radius={[3, 3, 3, 3]}>
-                  {performanceData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={entry.change >= 0 ? '#10b981' : '#ef4444'}
-                      fillOpacity={0.85}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+          ))
+        ) : (
+          <p className="text-slate-500 text-sm py-3">No performance data available</p>
+        )}
 
         <Branding />
       </div>

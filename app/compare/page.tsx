@@ -134,13 +134,12 @@ export default function ComparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <span className="text-4xl">⚖️</span>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-white bg-clip-text text-transparent">
               Crypto Asset Comparator
             </h1>
           </div>
@@ -159,7 +158,6 @@ export default function ComparePage() {
           </div>
         )}
 
-        {/* Error State */}
         {error && !loading && (
           <ErrorMessage message={error} onRetry={handleRetry} />
         )}

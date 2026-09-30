@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import CryptoDetail, { CryptoDetailLoading, CryptoDetailError } from '@/components/single/CryptoDetail';
-import CryptoTable from '@/components/single/CryptoTable';
 import PriceChart from '@/components/single/PriceChart';
 import TokenAnalysis from '@/components/single/TokenAnalysis';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -83,7 +82,6 @@ export default function TokenPage() {
     setError(null);
 
     try {
-      // Only fetch token data and top coins, PriceChart will fetch its own historical data
       const [tokenData, topCoins] = await Promise.all([
         fetchTokenData(cryptoName),
         fetchTopCoins()
@@ -119,18 +117,17 @@ export default function TokenPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-black via-slate-800 to-slate-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <span className="text-4xl">🔬</span>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-white bg-white bg-clip-text">
               CryptoResearch Analytics
             </h1>
           </div>
           <p className="text-slate-400">
-            Academic-grade cryptocurrency analysis for research purposes
+            Academic grade cryptocurrency analysis for research purposes
           </p>
         </header>
 
@@ -148,7 +145,7 @@ export default function TokenPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/20"
+              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/20"
             >
               {loading ? 'Analyzing...' : 'Analyze'}
             </button>
@@ -165,7 +162,6 @@ export default function TokenPage() {
           </div>
         )}
 
-        {/* Error State */}
         {error && !loading && (
           <div className="space-y-5">
             <CryptoDetailError message={error} />
@@ -173,14 +169,13 @@ export default function TokenPage() {
           </div>
         )}
 
-        {/* Data Display */}
         {data?.coin && !loading && (
           <div className="space-y-6">
-            {/* Token Analysis - Overview, Supply Metrics, Performance */}
+
+            <CryptoDetail coin={data.coin} usdToZar={data.usdToZar || undefined} />
+
             <TokenAnalysis token={data.coin} />
 
-            {/* Crypto Detail - Description and links */}
-            <CryptoDetail coin={data.coin} usdToZar={data.usdToZar || undefined} />
 
             {/* Price Chart - Now handles its own data fetching */}
             <PriceChart 
@@ -192,7 +187,7 @@ export default function TokenPage() {
 
 
             {/* Top Cryptocurrencies Table */}
-            {allCoins.length > 0 && (
+            {/* {allCoins.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-white text-lg font-semibold mb-4 flex items-center gap-2">
                   <span className="text-blue-400">📊</span> Top Cryptocurrencies
@@ -203,7 +198,7 @@ export default function TokenPage() {
                   onRowClick={handleRowClick}
                 />
               </div>
-            )}
+            )} */}
           </div>
         )}
 

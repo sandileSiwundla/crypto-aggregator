@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from "react";
 import { formatChange, getChangeClass } from "../tokenUtils";
-import type { Token } from "./Tokenoverviewcard";
+import type { Token } from "../single/Tokenoverviewcard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
