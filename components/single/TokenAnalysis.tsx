@@ -169,7 +169,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
 );
 
 const Branding: React.FC = () => (
-  <div className="flex items-center 5 mt-4 pt-3 border-t border-slate-700/40">
+  <div className="flex items-center mt-4 pt-3 border-t border-slate-700/40">
     <img
       src={ABC_BRANDING.logo}
       alt="ABC"
@@ -281,6 +281,7 @@ export default function TokenAnalysis({ token }: TokenAnalysisProps) {
       {/* ───────── Supply & Allocation ───────── */}
       <div ref={supplyRef} className={cardClass}>
         <CardHeader
+          title="Supply & Allocation"
           downloadKey="supply"
           token={token}
           downloading={downloading}

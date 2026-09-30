@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { formatChange, getChangeClass } from "../tokenUtils";
-import type { Token } from "../single/Tokenoverviewcard";
+import { formatChange, getChangeClass } from "@/lib/tokenUtils";
+import type { Token } from "@/lib/tokenUtils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -121,7 +121,7 @@ export default function CryptoTable({ coins, usdToZar, onRowClick }: CryptoTable
 
               return (
                 <tr
-                  key={coin.symbol}
+                  key={coin.id ?? coin.symbol}
                   onClick={() => onRowClick?.(coin)}
                   className={`transition-colors hover:bg-blue-900/10 ${onRowClick ? "cursor-pointer" : ""}`}
                 >

@@ -3,9 +3,10 @@
 "use client";
 
 import React from "react";
-import { formatChange, getChangeClass } from "../tokenUtils";
+import { formatChange, getChangeClass } from "@/lib/tokenUtils";
+import type { Token } from "@/lib/tokenUtils";
 
-interface CoinWithMeta  {
+interface CoinWithMeta extends Token {
   description?: string;
   urls?: {
     website?: string[];

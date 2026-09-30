@@ -28,10 +28,13 @@ interface ListingsResponse {
   };
 }
 
-const API_KEY = process.env.COINMARKETCAP_API_KEY || '953d5f26c7de4a708c07385c6bec69fa';
+const API_KEY = process.env.COINMARKETCAP_API_KEY;
 const BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
 
 export async function GET(request: NextRequest) {
+  if (!API_KEY) {
+    return NextResponse.json({ error: 'COINMARKETCAP_API_KEY is not configured' }, { status: 500 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') || '100';
