@@ -62,12 +62,6 @@ export default function Home() {
           </Link>
         </main>
 
-        {/* Footer note */}
-        <footer className="mt-16 text-center">
-          <p className="label-caps">
-            Data for research purposes · Not investment advice
-          </p>
-        </footer>
 
       </div>
     </div>
